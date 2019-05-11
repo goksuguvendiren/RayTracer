@@ -8,11 +8,12 @@
 #include <optional>
 #include <glm/vec3.hpp>
 #include <material.hpp>
-#include "payload.hpp"
+//#include "payload.hpp"
 #include "ray.hpp"
 
 namespace rtr
 {
+    class payload;
     namespace primitives
     {
         class sphere

@@ -25,6 +25,16 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
         }
     }
 
+    for (auto& mesh : meshes)
+    {
+        auto hit = mesh.hit(ray);
+        if (!hit) continue;
+        if (!min_hit || hit->param < min_hit->param)
+        {
+            min_hit = *hit;
+        }
+    }
+
     return min_hit;
 }
 
@@ -66,17 +76,22 @@ rtr::scene::scene(SceneIO* io)
             assert(data->normType == NormType::PER_FACE_NORMAL);
             assert(data->materialBinding == MaterialBinding::PER_OBJECT_MATERIAL);
 
+            std::vector<rtr::primitives::face> faces;
             for (int i = 0; i < data->numPolys; ++i)
             {
                 auto polygon = data->poly[i];
-                std::vector<rtr::vertex> vertices;
+                assert(polygon.numVertices == 3);
+
+                rtr::primitives::face face_new;
                 for (int j = 0; j < polygon.numVertices; ++j)
                 {
-                    vertices.emplace_back(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
+                    face_new.vertices[j] = rtr::vertex(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
                 }
-
-                meshes.emplace_back(vertices);
+                face_new.set_normal();
+                faces.push_back(face_new);
             }
+
+            meshes.emplace_back(faces);
         }
         obj = obj->next;
     }

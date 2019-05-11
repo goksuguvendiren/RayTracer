@@ -4,6 +4,9 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <variant>
+#include <primitives/mesh.hpp>
+#include <primitives/sphere.hpp>
 #include "ray.hpp"
 
 namespace rtr
@@ -14,5 +17,6 @@ namespace rtr
         glm::vec3 hit_pos;
         rtr::ray ray;
         float param;
+        std::variant<const rtr::primitives::mesh*, const rtr::primitives::sphere*> object;
     };
 } // namespace rtr

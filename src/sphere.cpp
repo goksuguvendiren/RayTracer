@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include "payload.hpp"
 #include "primitives/sphere.hpp"
 
 std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) const
@@ -18,7 +19,6 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
     if (delta < 1e-4) return std::nullopt;
 
     auto param = (- B - std::sqrt(delta)) / (2.0f * A);
-    std::cout << param << '\n';
 
     if (param < 0)
     {
@@ -37,5 +37,5 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
         return std::nullopt;
     }
 
-    return payload{surface_normal, hit_point, ray, param};
+    return payload{surface_normal, hit_point, ray, param, this};
 }
