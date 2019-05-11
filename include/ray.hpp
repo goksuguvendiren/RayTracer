@@ -1,7 +1,10 @@
 //
 // Created by Göksu Güvendiren on 2019-05-10.
 //
-#include <glm/vec3.hpp>
+
+#pragma once
+
+#include <glm/glm.hpp>
 
 namespace rtr
 {

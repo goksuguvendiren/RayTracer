@@ -5,8 +5,11 @@
 #pragma once
 
 #include <string>
+#include <optional>
 #include <glm/vec3.hpp>
 #include <material.hpp>
+#include "payload.hpp"
+#include "ray.hpp"
 
 namespace rtr
 {
@@ -21,8 +24,9 @@ namespace rtr
                    z_axis(z_ax), z_len(z_l) {}
 
             std::vector<material> materials;
+            std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 
-        private:
+        // private:
             std::string name;
             glm::vec3 origin;
             float radius;

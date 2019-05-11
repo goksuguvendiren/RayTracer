@@ -2,10 +2,30 @@
 #include <scene_io.h>
 #include <vertex.hpp>
 #include "scene.hpp"
+#include "primitives/sphere.hpp"
+#include "primitives/mesh.hpp"
+#include "utils.hpp"
 
 glm::vec3 to_vec3(float* vert)
 {
     return {vert[0], vert[1], vert[2]};
+}
+
+std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
+{
+    std::optional<rtr::payload> min_hit = std::nullopt;
+
+    for (auto& sphere : spheres)
+    {
+        auto hit = sphere.hit(ray);
+        if (!hit) continue;
+        if (!min_hit || hit->param < min_hit->param)
+        {
+            min_hit = *hit;
+        }
+    }
+
+    return min_hit;
 }
 
 rtr::scene::scene(SceneIO* io)

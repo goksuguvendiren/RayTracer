@@ -5,24 +5,33 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 #include <glm/vec3.hpp>
 #include <opencv2/opencv.hpp>
 #include "camera.hpp"
 #include "light.hpp"
 #include "scene_io.h"
+#include "payload.hpp"
 #include "primitives/sphere.hpp"
 #include "primitives/mesh.hpp"
 
 namespace rtr
 {
     class camera;
+    class ray;
+    
+    // namespace primitives{
+    //     class sphere;
+    //     class mesh;
+    // }
+
     class scene
     {
     public:
         scene(SceneIO* io);
-//        scene(std::unique_ptr<SceneIO> io);
-
         const rtr::camera& get_camera() const { return camera; }
+
+        std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 
     private:
         glm::vec3 backgroundColor;
@@ -32,19 +41,9 @@ namespace rtr
         float maxRecursionDepth;
 
         rtr::camera camera;
-//        std::vector<gpt::Camera> cameras;
-//        std::vector<glm::vec3> vertices;
-//        std::map<std::string, glm::mat4> transformations;
-//
+
         std::vector<rtr::primitives::sphere> spheres;
-//        std::vector<gpt::Triangle> triangles;
         std::vector<rtr::primitives::mesh> meshes;
-//
-//        std::vector<gpt::Shape*> shapes;
-//
-//        std::map<int, std::unique_ptr<gpt::Material>> materials;
-//        std::vector<std::unique_ptr<gpt::Light>> lights;
         std::vector<rtr::light> lights;
-//        std::vector<gpt::LightMesh> light_meshes;
     };
 }

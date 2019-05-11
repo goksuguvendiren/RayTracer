@@ -39,15 +39,19 @@ namespace rtr
         {
             float scale = cam.focal_dist;
             auto center = cam.eye_pos + scale * cam.view_dir;
-            auto up = scale * std::tan(glm::radians(cam.vert_fov / 2.f)) * cam.up_dir;
+            up = scale * std::tan(cam.vert_fov / 2.f) * cam.up_dir;
 
             float aspect_ratio = w / float(h);
             auto horizontal_fov = cam.vert_fov * aspect_ratio;
-            auto right = scale * std::tan(glm::radians(horizontal_fov / 2.f)) * cam.right_dir;
+            right = scale * std::tan(horizontal_fov / 2.f) * cam.right_dir;
 
             top_left = center + up - right;
+            up *= 2;
+            right *= 2;
         }
 
+        glm::vec3 right;
+        glm::vec3 up;
         glm::vec3 top_left_position() const { return top_left; }
     private:
         glm::vec3 top_left;
