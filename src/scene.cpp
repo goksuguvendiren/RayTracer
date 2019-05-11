@@ -92,6 +92,13 @@ rtr::scene::scene(SceneIO* io)
             }
 
             meshes.emplace_back(faces);
+            auto& mesh = meshes.back();
+            for (int i = 0; i < obj->numMaterials; ++i)
+            {
+                mesh.materials.emplace_back(to_vec3(obj->material->diffColor), to_vec3(obj->material->ambColor),
+                                           to_vec3(obj->material->specColor), to_vec3(obj->material->emissColor),
+                                           obj->material->shininess, obj->material->ktran);
+            }
         }
         obj = obj->next;
     }

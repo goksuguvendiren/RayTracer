@@ -15,6 +15,7 @@ glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int
 
     if (!hit) return color;
 
+    if (hit->material) return hit->material->diffuse;
     return glm::vec3(1.f, 1.f, 1.f);
 }
 
@@ -48,6 +49,7 @@ void rtr::renderer::render(const rtr::scene &scene)
     }
     
     cv::Mat image(width, height, CV_32FC3, frame_buffer.data());
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     cv::imshow("window", image);
     cv::waitKey(0);
 }

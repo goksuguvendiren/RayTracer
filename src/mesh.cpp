@@ -81,6 +81,6 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
         }
     }
 
-    if (min_hit) min_hit->object = this;
+    if (min_hit) min_hit->material = &materials.front();
     return min_hit;
 }

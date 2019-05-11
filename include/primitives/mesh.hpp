@@ -7,6 +7,7 @@
 #include <array>
 #include <optional>
 #include <vector>
+#include <material.hpp>
 #include "vertex.hpp"
 
 namespace rtr
@@ -29,7 +30,7 @@ namespace rtr
         public:
             mesh(std::vector<rtr::primitives::face> fcs) : faces(std::move(fcs)) {}
 
-//            std::vector<material> materials;
+            std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 
         private:

@@ -17,6 +17,6 @@ namespace rtr
         glm::vec3 hit_pos;
         rtr::ray ray;
         float param;
-        std::variant<const rtr::primitives::mesh*, const rtr::primitives::sphere*> object;
+        const rtr::material* material;
     };
 } // namespace rtr
