@@ -33,6 +33,8 @@ namespace rtr
 
         std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 
+        const std::vector<rtr::light>& lights() const { return lghts; }
+
     private:
         glm::vec3 backgroundColor;
         glm::vec3 ambientLight;
@@ -44,6 +46,6 @@ namespace rtr
 
         std::vector<rtr::primitives::sphere> spheres;
         std::vector<rtr::primitives::mesh> meshes;
-        std::vector<rtr::light> lights;
+        std::vector<rtr::light> lghts;
     };
 }

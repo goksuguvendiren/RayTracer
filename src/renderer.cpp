@@ -8,6 +8,43 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
+static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
+{
+    return 2 * glm::dot(normal, light) * normal - light;
+}
+
+float shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
+{
+    auto color = glm::vec3{0.f, 0.f, 0.f};
+    std::optional<rtr::payload> hit = scene.hit(ray);
+
+    if (!hit) return 1.f;
+
+    return 0.f;
+}
+
+glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
+{
+    auto& mat = payload.material;
+
+    auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
+    glm::vec3 color = ambient;
+
+    for (auto& light : scene.lights())
+    {
+        float epsilon = 1e-4;
+        rtr::ray shadow_ray = rtr::ray(payload.hit_pos + (payload.hit_normal * epsilon), light.position - payload.hit_pos, false);
+        auto shadow_term = shadow_trace(scene, shadow_ray);
+
+        auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
+        auto specular = mat->specular * std::pow(std::max(glm::dot(-payload.ray.direction(), reflect(light.direction(payload.hit_pos), payload.hit_normal)), 0.0f), mat->exp);
+
+        color += shadow_term * (diffuse + specular);
+    }
+
+    return color;
+}
+
 glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};  
@@ -15,8 +52,7 @@ glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int
 
     if (!hit) return color;
 
-    if (hit->material) return hit->material->diffuse;
-    return glm::vec3(1.f, 1.f, 1.f);
+    return shade(scene, *hit);
 }
 
 void rtr::renderer::render(const rtr::scene &scene)

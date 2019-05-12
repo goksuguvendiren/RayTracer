@@ -14,5 +14,10 @@ namespace rtr
         light(const glm::vec3& pos, const glm::vec3& col) : position(pos), color(col) {}
         glm::vec3 position;
         glm::vec3 color;
+
+        glm::vec3 direction(const glm::vec3& hit_pos) const
+        {
+            return glm::normalize(position - hit_pos);
+        }
     };
 }

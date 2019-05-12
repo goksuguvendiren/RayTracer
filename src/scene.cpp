@@ -46,7 +46,10 @@ rtr::scene::scene(SceneIO* io)
     auto* light = io->lights;
     while(light != nullptr)
     {
-        lights.emplace_back(to_vec3(light->position), to_vec3(light->color));
+        if (light->type == LightType::POINT_LIGHT)
+        {
+            lghts.emplace_back(to_vec3(light->position), to_vec3(light->color));
+        }
         light = light->next;
     }
 
