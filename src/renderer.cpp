@@ -10,17 +10,15 @@
 
 static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
-    return 2 * glm::dot(normal, light) * normal - light;
+    return glm::normalize(2 * glm::dot(normal, light) * normal - light);
 }
 
-float shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
+std::optional<rtr::payload> shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};
     std::optional<rtr::payload> hit = scene.hit(ray);
 
-    if (!hit) return 1.f;
-
-    return 0.f;
+    return hit;
 }
 
 glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
@@ -34,12 +32,14 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
     {
         float epsilon = 1e-4;
         rtr::ray shadow_ray = rtr::ray(payload.hit_pos + (payload.hit_normal * epsilon), light.position - payload.hit_pos, false);
-        auto shadow_term = shadow_trace(scene, shadow_ray);
+        auto in_shadow = shadow_trace(scene, shadow_ray);
+
+        if(in_shadow && (in_shadow->param < glm::length(light.position - payload.hit_pos))) continue; //point is in shadow
 
         auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
         auto specular = mat->specular * std::pow(std::max(glm::dot(-payload.ray.direction(), reflect(light.direction(payload.hit_pos), payload.hit_normal)), 0.0f), mat->exp);
 
-        color += shadow_term * (diffuse + specular);
+        color += (diffuse + specular);
     }
 
     return color;
@@ -52,7 +52,16 @@ glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int
 
     if (!hit) return color;
 
-    return shade(scene, *hit);
+    color = shade(scene, *hit);
+    if (rec_depth >= max_rec_depth) return color;
+
+    // Reflection :
+    auto direction = reflect(-hit->ray.direction(), hit->hit_normal);
+    rtr::ray reflection_ray(hit->hit_pos + (direction * 1e-4f), direction, false);
+
+    color += hit->material->specular * trace(scene, reflection_ray, rec_depth + 1, max_rec_depth);
+
+    return color;
 }
 
 void rtr::renderer::render(const rtr::scene &scene)
