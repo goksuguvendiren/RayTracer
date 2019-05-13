@@ -34,7 +34,7 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
     glm::vec3 col3 = ray.direction();
     glm::vec3 col4 = a.position() - ray.origin();
 
-    auto epsilon = -1e-4;
+    auto epsilon = 1e-6;
     auto detA  = determinant(col1, col2, col3);
     if (detA == 0) return std::nullopt;
 

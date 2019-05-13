@@ -30,11 +30,12 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 
     for (auto& light : scene.lights())
     {
-        float epsilon = 1e-4;
-        rtr::ray shadow_ray = rtr::ray(payload.hit_pos + (payload.hit_normal * epsilon), light.position - payload.hit_pos, false);
+        float epsilon = 1e-5;
+        auto hit_position = payload.hit_pos + payload.hit_normal * epsilon;
+        rtr::ray shadow_ray = rtr::ray(hit_position, light.position - hit_position, false);
         auto in_shadow = shadow_trace(scene, shadow_ray);
 
-        if(in_shadow && (in_shadow->param < glm::length(light.position - payload.hit_pos))) continue; //point is in shadow
+        if(in_shadow && (in_shadow->param < glm::length(light.position - hit_position))) continue; //point is in shadow
 
         auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
         auto specular = mat->specular * std::pow(std::max(glm::dot(-payload.ray.direction(), reflect(light.direction(payload.hit_pos), payload.hit_normal)), 0.0f), mat->exp);
@@ -57,9 +58,13 @@ glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int
 
     // Reflection :
     auto direction = reflect(-hit->ray.direction(), hit->hit_normal);
-    rtr::ray reflection_ray(hit->hit_pos + (direction * 1e-4f), direction, false);
+    rtr::ray reflection_ray(hit->hit_pos + (direction * 1e-3f), direction, false);
 
-    color += hit->material->specular * trace(scene, reflection_ray, rec_depth + 1, max_rec_depth);
+    if (hit->material->specular.x > 0.f || hit->material->specular.y > 0.f || hit->material->specular.z > 0.f)
+        color += hit->material->specular * trace(scene, reflection_ray, rec_depth + 1, max_rec_depth);
+
+//    if (hit->material->trans > 0.f)
+//        color += hit->material->trans * trace(scene. refraction_ray, rec_depth + 1, max_rec_depth);
 
     return color;
 }
