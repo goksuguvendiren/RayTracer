@@ -17,6 +17,7 @@ namespace rtr
         glm::vec3 hit_pos;
         rtr::ray ray;
         float param;
+        int obj_id;
         const rtr::material* material;
     };
 } // namespace rtr

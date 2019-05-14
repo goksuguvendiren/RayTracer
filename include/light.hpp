@@ -19,5 +19,16 @@ namespace rtr
         {
             return glm::normalize(position - hit_pos);
         }
+
+        float attenuate(const glm::vec3& hit_pos) const
+        {
+            auto distance = glm::length(position - hit_pos);
+            float c_1 = 0.25;
+            float c_2 = 0.1;
+            float c_3 = 0.01;
+
+            auto attenuation = 1.f / float(c_1 + c_2 * distance + c_3 * distance * distance);
+            return std::min(1.f, attenuation);
+        }
     };
 }

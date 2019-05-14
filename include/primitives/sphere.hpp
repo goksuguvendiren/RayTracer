@@ -29,6 +29,8 @@ namespace rtr
 
         // private:
             std::string name;
+            int id;
+
             glm::vec3 origin;
             float radius;
 

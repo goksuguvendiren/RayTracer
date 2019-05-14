@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
     auto begin = std::chrono::system_clock::now();
     std::cout << "Hello, World!" << std::endl;
 
-    std::string scene_path = "../Scenes/test3.ascii";
+    std::string scene_path = "../Scenes/test0.ascii";
     if (argc > 1) scene_path = std::string(argv[1]);
 
     auto scene = loadScene(scene_path);

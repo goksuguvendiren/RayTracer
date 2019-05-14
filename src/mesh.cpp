@@ -34,7 +34,7 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
     glm::vec3 col3 = ray.direction();
     glm::vec3 col4 = a.position() - ray.origin();
 
-    auto epsilon = 1e-6;
+    auto epsilon = 1e-8;
     auto detA  = determinant(col1, col2, col3);
     if (detA == 0) return std::nullopt;
 
@@ -49,10 +49,6 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
     {
         return std::nullopt;
     }
-//    if (ray.is_primary() && !is_back_face(surface_normal, ray.direction()))
-//    {
-//        return std::nullopt;
-//    }
 
     auto point = ray.origin() + param * ray.direction();
     glm::vec3 normal = glm::normalize(alpha * surface_normal + beta * surface_normal + gamma * surface_normal);
@@ -81,6 +77,9 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
         }
     }
 
-    if (min_hit) min_hit->material = &materials.front();
+    if (min_hit) {
+        min_hit->material = &materials.front();
+        min_hit->obj_id = id;
+    }
     return min_hit;
 }

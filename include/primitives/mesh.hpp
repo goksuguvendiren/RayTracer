@@ -33,6 +33,8 @@ namespace rtr
             std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 
+            int id;
+
         private:
             std::vector<rtr::primitives::face> faces;
         };

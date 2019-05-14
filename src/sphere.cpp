@@ -16,7 +16,7 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
 
     auto delta = B * B - 4 * A * C;
 
-    if (delta < 1e-4) return std::nullopt;
+    if (delta < 1e-7) return std::nullopt;
 
     auto param = (- B - std::sqrt(delta)) / (2.0f * A);
 
@@ -38,5 +38,5 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
     }
 
 //    mat = materials[0];
-    return rtr::payload{surface_normal, hit_point, ray, param, &materials.front()};
+    return rtr::payload{surface_normal, hit_point, ray, param, id, &materials.front()};
 }

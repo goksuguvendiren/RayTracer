@@ -53,6 +53,8 @@ rtr::scene::scene(SceneIO* io)
         light = light->next;
     }
 
+    int id = 0;
+
     auto* obj = io->objects;
     while(obj != nullptr)  // iterate through the objects
     {
@@ -65,6 +67,7 @@ rtr::scene::scene(SceneIO* io)
                                  to_vec3(data->zaxis), data->zlength);
 
             auto& sph = spheres.back();
+            sph.id = id++;
             for (int i = 0; i < obj->numMaterials; ++i)
             {
                 sph.materials.emplace_back(to_vec3(obj->material->diffColor), to_vec3(obj->material->ambColor),
@@ -96,6 +99,7 @@ rtr::scene::scene(SceneIO* io)
 
             meshes.emplace_back(faces);
             auto& mesh = meshes.back();
+            mesh.id = id++;
             for (int i = 0; i < obj->numMaterials; ++i)
             {
                 mesh.materials.emplace_back(to_vec3(obj->material->diffColor), to_vec3(obj->material->ambColor),

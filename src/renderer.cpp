@@ -50,17 +50,23 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 
     for (auto& light : scene.lights())
     {
-        float epsilon = 1e-5;
+        float epsilon = 1e-4;
         auto hit_position = payload.hit_pos + payload.hit_normal * epsilon;
         rtr::ray shadow_ray = rtr::ray(hit_position, light.position - hit_position, false);
         auto in_shadow = shadow_trace(scene, shadow_ray);
 
         if(in_shadow && (in_shadow->param < glm::length(light.position - hit_position))) continue; //point is in shadow
 
-        auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
-        auto specular = mat->specular * std::pow(std::max(glm::dot(-payload.ray.direction(), reflect(light.direction(payload.hit_pos), payload.hit_normal)), 0.0f), mat->exp);
+        auto reflection_vector = reflect(light.direction(payload.hit_pos), payload.hit_normal);
+        auto cos_angle = glm::dot(reflection_vector, -payload.ray.direction());
+        auto highlight = std::max(0.f, std::pow(cos_angle, mat->exp * 20));
 
-        color += (diffuse + specular);
+        auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
+        auto specular = mat->specular * highlight;
+
+        auto attenuation = light.attenuate(payload.hit_pos);
+
+        color += (diffuse + specular) * attenuation;
     }
 
     return color;
@@ -148,6 +154,7 @@ void rtr::renderer::render(const rtr::scene &scene)
     cv::Mat image(width, height, CV_32FC3, frame_buffer.data());
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     cv::imshow("window", image);
+    cv::imwrite("image.png", image * 255);
     cv::waitKey(0);
 }
 
