@@ -13,7 +13,11 @@ namespace rtr
     {
     public:
         // material() = default;
-        material(const glm::vec3& diff, const glm::vec3& amb, const glm::vec3& spec, const glm::vec3& ems, float p, float t) : diffuse(diff), ambient(amb), specular(spec), emissive(ems), exp(p), trans(t) {}
+        material(const glm::vec3& diff, const glm::vec3& amb, const glm::vec3& spec, const glm::vec3& ems, float p, float t) : diffuse(diff), ambient(amb), specular(spec), emissive(ems), exp(p), trans(t), refractive_index(1.0f)
+        {
+            if (trans > 0.f) refractive_index = 1.5f;
+        }
+
         glm::vec3 diffuse;
         glm::vec3 ambient;
         glm::vec3 specular;
@@ -21,5 +25,6 @@ namespace rtr
 
         float exp;
         float trans;
+        float refractive_index;
     };
 }

@@ -49,10 +49,10 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
     {
         return std::nullopt;
     }
-    if (ray.is_primary() && !is_back_face(surface_normal, ray.direction()))
-    {
-        return std::nullopt;
-    }
+//    if (ray.is_primary() && !is_back_face(surface_normal, ray.direction()))
+//    {
+//        return std::nullopt;
+//    }
 
     auto point = ray.origin() + param * ray.direction();
     glm::vec3 normal = glm::normalize(alpha * surface_normal + beta * surface_normal + gamma * surface_normal);

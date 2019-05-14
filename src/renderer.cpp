@@ -13,6 +13,26 @@ static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
     return glm::normalize(2 * glm::dot(normal, light) * normal - light);
 }
 
+static glm::vec3 refract(const glm::vec3& light, const glm::vec3& normal, float eta_1, float eta_2)
+{
+    assert(glm::length(light) < 1.01f && glm::length(normal) < 1.01f);
+
+    auto cos_theta_1 = glm::dot(light, normal);
+    auto sin_theta_1 = std::sin(std::acos(cos_theta_1));
+    auto sin_theta_2 = sin_theta_1 * (eta_1 / eta_2);
+
+    if (sin_theta_2 >= 1) return reflect(light, normal);
+
+    auto cos_theta_2 = std::cos(std::asin(sin_theta_2));
+
+    auto Q = cos_theta_1 * normal;
+    auto M = (eta_1 / eta_2) * (Q - light);
+
+    auto P = - cos_theta_2 * normal;
+
+    return M + P;
+}
+
 std::optional<rtr::payload> shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};
@@ -46,7 +66,7 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
     return color;
 }
 
-glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
+glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};  
     std::optional<rtr::payload> hit = scene.hit(ray);
@@ -57,14 +77,41 @@ glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int
     if (rec_depth >= max_rec_depth) return color;
 
     // Reflection :
-    auto direction = reflect(-hit->ray.direction(), hit->hit_normal);
-    rtr::ray reflection_ray(hit->hit_pos + (direction * 1e-3f), direction, false);
-
     if (hit->material->specular.x > 0.f || hit->material->specular.y > 0.f || hit->material->specular.z > 0.f)
-        color += hit->material->specular * trace(scene, reflection_ray, rec_depth + 1, max_rec_depth);
+    {
+        auto reflection_direction = reflect(-hit->ray.direction(), hit->hit_normal);
+        rtr::ray reflected_ray(hit->hit_pos + (reflection_direction * 1e-3f), reflection_direction, false);
 
-//    if (hit->material->trans > 0.f)
-//        color += hit->material->trans * trace(scene. refraction_ray, rec_depth + 1, max_rec_depth);
+        color += hit->material->specular * trace(scene, reflected_ray, rec_depth + 1, max_rec_depth);
+    }
+
+    // Refraction
+    if (hit->material->trans > 0.f)
+    {
+        bool entering = glm::dot(hit->ray.direction(), hit->hit_normal) < 0.0f;
+        auto normal = hit->hit_normal;
+        float eta_1, eta_2;
+        if (entering)
+        {
+            eta_1 = 1.f;//refr_indices.top();
+            eta_2 = 1.5f;//hit->material->refractive_index;
+//            refr_indices.push(eta_2);
+        }
+        else // exiting
+        {
+            eta_1 = 1.5f;//refr_indices.top();
+//            refr_indices.pop();
+            eta_2 = 1.0f;//refr_indices.top();
+            normal = -normal;
+//            std::cout << eta_1 << ", " << eta_2 << '\n';
+        }
+
+        auto refraction_direction = refract(-hit->ray.direction(), normal, eta_1, eta_2); // current_index, next_index
+//        std::cout << hit->ray.direction() << " - " << refraction_direction << '\n';
+        rtr::ray refracted_ray(hit->hit_pos + (refraction_direction * 1e-3f), refraction_direction, false);
+
+        color += hit->material->trans * trace(scene, refracted_ray, rec_depth + 1, max_rec_depth);
+    }
 
     return color;
 }
