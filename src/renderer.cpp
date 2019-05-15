@@ -13,24 +13,35 @@ static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
     return glm::normalize(2 * glm::dot(normal, light) * normal - light);
 }
 
-static glm::vec3 refract(const glm::vec3& light, const glm::vec3& normal, float eta_1, float eta_2)
+//static glm::vec3 refract(const glm::vec3& light, const glm::vec3& normal, float eta_1, float eta_2)
+//{
+//    assert(glm::length(light) < 1.01f && glm::length(normal) < 1.01f);
+//
+//    auto cos_theta_1 = glm::dot(-light, normal);
+//    auto sin_theta_1 = std::sin(std::acos(cos_theta_1));
+//    auto sin_theta_2 = sin_theta_1 * (eta_1 / eta_2);
+//
+//    if (sin_theta_2 >= 1) return reflect(light, normal);
+//
+//    auto cos_theta_2 = std::cos(std::asin(sin_theta_2));
+//
+//    auto Q = cos_theta_1 * normal;
+//    auto M = (eta_1 / eta_2) * (Q - light);
+//
+//    auto P = - cos_theta_2 * normal;
+//
+//    return M + P;
+//}
+
+glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
 {
-    assert(glm::length(light) < 1.01f && glm::length(normal) < 1.01f);
-
-    auto cos_theta_1 = glm::dot(light, normal);
-    auto sin_theta_1 = std::sin(std::acos(cos_theta_1));
-    auto sin_theta_2 = sin_theta_1 * (eta_1 / eta_2);
-
-    if (sin_theta_2 >= 1) return reflect(light, normal);
-
-    auto cos_theta_2 = std::cos(std::asin(sin_theta_2));
-
-    auto Q = cos_theta_1 * normal;
-    auto M = (eta_1 / eta_2) * (Q - light);
-
-    auto P = - cos_theta_2 * normal;
-
-    return M + P;
+    float cosi = std::clamp(glm::dot(I, N), -1.f, 1.f);
+    float etai = 1, etat = ior;
+    glm::vec3 n = N;
+    if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= -N; }
+    float eta = etai / etat;
+    float k = 1 - eta * eta * (1 - cosi * cosi);
+    return k < 0 ? reflect(-I, N) : eta * I + (eta * cosi - sqrtf(k)) * n;
 }
 
 std::optional<rtr::payload> shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
@@ -47,15 +58,19 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 
     auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
     glm::vec3 color = ambient;
+//    glm::vec3 color = glm::vec3(0);
 
-    for (auto& light : scene.lights())
+    scene.for_each_light([&payload, &color, &mat, &scene](auto light)
     {
         float epsilon = 1e-4;
         auto hit_position = payload.hit_pos + payload.hit_normal * epsilon;
-        rtr::ray shadow_ray = rtr::ray(hit_position, light.position - hit_position, false);
+        rtr::ray shadow_ray = rtr::ray(hit_position, light.direction(hit_position), false);
         auto in_shadow = shadow_trace(scene, shadow_ray);
 
-        if(in_shadow && (in_shadow->param < glm::length(light.position - hit_position))) continue; //point is in shadow
+        if(in_shadow && (in_shadow->param < light.distance(hit_position)))
+        {
+            return; //point is in shadow
+        }
 
         auto reflection_vector = reflect(light.direction(payload.hit_pos), payload.hit_normal);
         auto cos_angle = glm::dot(reflection_vector, -payload.ray.direction());
@@ -65,9 +80,10 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
         auto specular = mat->specular * highlight;
 
         auto attenuation = light.attenuate(payload.hit_pos);
+        //        std::cout << specular << '\n';
 
         color += (diffuse + specular) * attenuation;
-    }
+    });
 
     return color;
 }
@@ -77,7 +93,10 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
     auto color = glm::vec3{0.f, 0.f, 0.f};  
     std::optional<rtr::payload> hit = scene.hit(ray);
 
-    if (!hit) return color;
+    if (!hit)
+    {
+        return color;
+    }
 
     color = shade(scene, *hit);
     if (rec_depth >= max_rec_depth) return color;
@@ -94,26 +113,11 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
     // Refraction
     if (hit->material->trans > 0.f)
     {
-        bool entering = glm::dot(hit->ray.direction(), hit->hit_normal) < 0.0f;
-        auto normal = hit->hit_normal;
-        float eta_1, eta_2;
-        if (entering)
-        {
-            eta_1 = 1.f;//refr_indices.top();
-            eta_2 = 1.5f;//hit->material->refractive_index;
-//            refr_indices.push(eta_2);
-        }
-        else // exiting
-        {
-            eta_1 = 1.5f;//refr_indices.top();
-//            refr_indices.pop();
-            eta_2 = 1.0f;//refr_indices.top();
-            normal = -normal;
-//            std::cout << eta_1 << ", " << eta_2 << '\n';
-        }
+        auto eta_1 = 1.f;
+        auto eta_2 = 1.5f;
 
-        auto refraction_direction = refract(-hit->ray.direction(), normal, eta_1, eta_2); // current_index, next_index
-//        std::cout << hit->ray.direction() << " - " << refraction_direction << '\n';
+        auto refraction_direction = refract(ray.direction(), hit->hit_normal, eta_2 / eta_1);
+
         rtr::ray refracted_ray(hit->hit_pos + (refraction_direction * 1e-3f), refraction_direction, false);
 
         color += hit->material->trans * trace(scene, refracted_ray, rec_depth + 1, max_rec_depth);
@@ -146,7 +150,7 @@ void rtr::renderer::render(const rtr::scene &scene)
             //create the ray
             auto ray = rtr::ray(camera.position(), pixel_position - camera.position(), true);
 
-            auto color = trace(scene, ray, 0, 4);
+            auto color = trace(scene, ray, 0, 10);
             frame_buffer[i * width + j] = color;
         }
     }

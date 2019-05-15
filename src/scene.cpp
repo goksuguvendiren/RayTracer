@@ -50,6 +50,10 @@ rtr::scene::scene(SceneIO* io)
         {
             lghts.emplace_back(to_vec3(light->position), to_vec3(light->color));
         }
+        else if (light->type == LightType::DIRECTIONAL_LIGHT)
+        {
+            dir_lghts.emplace_back(to_vec3(light->direction), to_vec3(light->color));
+        }
         light = light->next;
     }
 

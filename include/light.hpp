@@ -20,6 +20,11 @@ namespace rtr
             return glm::normalize(position - hit_pos);
         }
 
+        float distance(const glm::vec3& hit_pos) const
+        {
+            return glm::length(position - hit_pos);
+        }
+
         float attenuate(const glm::vec3& hit_pos) const
         {
             auto distance = glm::length(position - hit_pos);
