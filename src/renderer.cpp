@@ -44,12 +44,24 @@ glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
     return k < 0 ? reflect(-I, N) : eta * I + (eta * cosi - sqrtf(k)) * n;
 }
 
-std::optional<rtr::payload> shadow_trace(const rtr::scene& scene, const rtr::ray& ray)
+// Do it recursively
+glm::vec3 shadow_trace(const rtr::scene& scene, const rtr::ray& ray, float light_distance)
 {
-    auto color = glm::vec3{0.f, 0.f, 0.f};
+    auto shadow = glm::vec3{1.f, 1.f, 1.f};
     std::optional<rtr::payload> hit = scene.hit(ray);
-
-    return hit;
+    
+    if (!hit) return shadow;
+    if (hit && (hit->param < light_distance)) // some base case checks to terminate
+    {
+        auto& diffuse = hit->material->diffuse;
+        auto normalized_diffuse = diffuse / std::max(std::max(diffuse.x, diffuse.y), diffuse.z);
+        return shadow * normalized_diffuse * hit->material->trans;
+    }
+    
+    auto hit_position = hit->hit_pos + ray.direction() * 1e-4f;
+    rtr::ray shadow_ray = rtr::ray(hit_position, ray.direction(), false);
+    
+    return shadow * shadow_trace(scene, shadow_ray, light_distance - glm::length(hit->hit_pos - ray.origin()));
 }
 
 glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
@@ -58,16 +70,15 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 
     auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
     glm::vec3 color = ambient;
-//    glm::vec3 color = glm::vec3(0);
 
     scene.for_each_light([&payload, &color, &mat, &scene](auto light)
     {
         float epsilon = 1e-4;
         auto hit_position = payload.hit_pos + payload.hit_normal * epsilon;
         rtr::ray shadow_ray = rtr::ray(hit_position, light.direction(hit_position), false);
-        auto in_shadow = shadow_trace(scene, shadow_ray);
+        auto shadow = shadow_trace(scene, shadow_ray, light.distance(hit_position));
 
-        if(in_shadow && (in_shadow->param < light.distance(hit_position)))
+        if(shadow.x <= epsilon && shadow.y <= epsilon && shadow.z <= epsilon) // complete shadow, no need to compute the rest
         {
             return; //point is in shadow
         }
@@ -80,9 +91,8 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
         auto specular = mat->specular * highlight;
 
         auto attenuation = light.attenuate(payload.hit_pos);
-        //        std::cout << specular << '\n';
 
-        color += (diffuse + specular) * attenuation;
+        color += (diffuse + specular) * attenuation * shadow;
     });
 
     return color;
