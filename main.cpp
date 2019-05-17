@@ -7,7 +7,7 @@ int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
 
-    std::string scene_path = "../../Scenes/test4.ascii";
+    std::string scene_path = "../../Scenes/obj/crate/crate1.obj";
     if (argc > 1) scene_path = std::string(argv[1]);
 
     rtr::scene scene(scene_path);

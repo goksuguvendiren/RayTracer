@@ -82,15 +82,12 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
 
     if (!hit) return color;
 
-    if (std::isnan(hit->param)) throw "param is nan!";
-
-    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
+//    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
 
     if (rec_depth >= max_rec_depth) return color;
     color = shade(scene, *hit);
 
     // Reflection :
-    auto specular = hit->material->specular;
     if (hit->material->specular.x > 0.f || hit->material->specular.y > 0.f || hit->material->specular.z > 0.f)
     {
         auto reflection_direction = reflect(-hit->ray.direction(), hit->hit_normal);
@@ -122,6 +119,22 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
     }
 }
 
+static void UpdateProgress(float progress)
+{
+    int barWidth = 70;
+    
+    std::cout << "[";
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << int(progress * 100.0) << " %\r";
+    std::cout.flush();
+};
+
+
 void rtr::renderer::render(const rtr::scene &scene)
 {
     const auto& camera = scene.get_camera();
@@ -144,6 +157,10 @@ void rtr::renderer::render(const rtr::scene &scene)
         pix_center = row_begin;
         for (int j = 0; j < width; ++j)
         {
+            if(i == 229 && j == 210)
+            {
+                std::cout << "hi" << '\n';
+            }
             pix_center += right;
             auto pixel_position = get_pixel_pos(pix_center, right, below);
             //create the ray
@@ -152,6 +169,8 @@ void rtr::renderer::render(const rtr::scene &scene)
             auto color = trace(scene, ray, 0, 5);
             frame_buffer[i * width + j] = color;
         }
+        
+        UpdateProgress(i / (float)height);
     }
 
     cv::Mat image(width, height, CV_32FC3, frame_buffer.data());

@@ -197,6 +197,7 @@ namespace objl
         {
             Vertices = _Vertices;
             Indices = _Indices;
+            MeshMaterial = std::nullopt;
         }
         // Mesh Name
         std::string MeshName;
@@ -206,7 +207,7 @@ namespace objl
         std::vector<unsigned int> Indices;
 
         // Material
-        Material MeshMaterial;
+        std::optional<Material> MeshMaterial;
     };
 
     // Namespace: Math

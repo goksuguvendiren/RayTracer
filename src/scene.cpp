@@ -139,6 +139,10 @@ rtr::scene::scene(const std::string &filename) {
     {
         load_obj(filename);
     }
+    else if (hasEnding(filename, ".ascii"))
+    {
+        *this = scene(readScene(filename.c_str()));
+    }
     else
     {
         throw "Unknown file type!";
@@ -154,8 +158,10 @@ void rtr::scene::load_obj(const std::string& filename)
     auto focal_distance = 12.2118f;
     auto vertical_fov = 0.785398f;
     camera = rtr::camera(glm::vec3{0, 0, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
-
-    std::cerr << loader.LoadedMeshes.size() << '\n';
+    
+    // create default light sources
+    lghts.emplace_back(glm::vec3{-1.84647, 0.778452, 2.67544}, glm::vec3{1, 1, 1});
+    lghts.emplace_back(glm::vec3{2.09856, 1.43311, 0.977627}, glm::vec3{1, 1, 1});
 
     int id = 0;
     for(auto& mesh : loader.LoadedMeshes)
@@ -179,6 +185,12 @@ void rtr::scene::load_obj(const std::string& filename)
         // also, emitted color is 0, meaning that these meshes cannot emit color right now.
 
         auto& material = mesh.MeshMaterial;
-        m.materials.emplace_back(to_vec3(material.Kd), to_vec3(material.Ka), to_vec3(material.Ks), glm::vec3{0, 0, 0}, material.Ns, material.Ni);
+        if (material)
+            m.materials.emplace_back(to_vec3(material->Kd), to_vec3(material->Ka), to_vec3(material->Ks), glm::vec3{0, 0, 0}, material->Ns, 0);
+        else
+        {
+            m.materials.emplace_back(glm::vec3{0.5, 0.5, 0.5}, glm::vec3{0.2, 0.2, 0.2}, glm::vec3{0, 0, 0}, glm::vec3{0, 0, 0}, 0, 0);
+            std::cerr << "This obj doesn't have any materials, default diffuse material will be used!" << '\n';
+        }
     }
 }
