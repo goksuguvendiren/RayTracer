@@ -23,14 +23,13 @@ static rtr::scene loadScene(const std::string& name)
 int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
-    std::cout << "Hello, World!" << std::endl;
 
     std::string scene_path = "../../Scenes/test4.ascii";
     if (argc > 1) scene_path = std::string(argv[1]);
 
     auto scene = loadScene(scene_path);
 
-    rtr::renderer r(1500, 1500);
+    rtr::renderer r(400, 400);
     r.render(scene);
 
     auto end = std::chrono::system_clock::now();

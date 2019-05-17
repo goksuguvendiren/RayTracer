@@ -8,7 +8,7 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
-static glm::vec3 reflect(glm::vec3 light, glm::vec3 normal)
+static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
     return glm::normalize(2 * glm::dot(normal, light) * normal - light);
 }
