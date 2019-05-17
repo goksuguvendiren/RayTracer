@@ -149,6 +149,11 @@ void rtr::scene::load_obj(const std::string& filename)
 {
     objl::Loader loader;
     loader.LoadFile(filename);
+    
+    // create a default camera located at the origin, looking at the -z direction.
+    auto focal_distance = 12.2118f;
+    auto vertical_fov = 0.785398f;
+    camera = rtr::camera(glm::vec3{0, 0, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
 
     std::cerr << loader.LoadedMeshes.size() << '\n';
 
