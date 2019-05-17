@@ -8,13 +8,11 @@
 #include <primitives/mesh.hpp>
 #include <ray.hpp>
 
-
 inline float determinant(const glm::vec3& col1, const glm::vec3& col2, const glm::vec3& col3)
 {
     return col1.x * (col2.y * col3.z - col2.z * col3.y) -
            col2.x * (col1.y * col3.z - col1.z * col3.y) +
            col3.x * (col1.y * col2.z - col1.z * col2.y);
-
 }
 
 inline bool is_back_face(const glm::vec3& surface_normal, const glm::vec3& direction)
