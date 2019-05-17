@@ -82,6 +82,10 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
 
     if (!hit) return color;
 
+    if (std::isnan(hit->param)) throw "param is nan!";
+
+    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
+
     if (rec_depth >= max_rec_depth) return color;
     color = shade(scene, *hit);
 

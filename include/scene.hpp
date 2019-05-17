@@ -30,6 +30,7 @@ namespace rtr
     {
     public:
         scene(SceneIO* io);
+        scene(const std::string& filename);
         const rtr::camera& get_camera() const { return camera; }
 
         std::optional<rtr::payload> hit(const rtr::ray& ray) const;
@@ -57,5 +58,7 @@ namespace rtr
         std::vector<rtr::primitives::mesh> meshes;
         std::vector<rtr::light> lghts;
         std::vector<rtr::dir_light> dir_lghts;
+
+        void load_obj(const std::string& filename);
     };
 }

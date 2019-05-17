@@ -52,6 +52,7 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
 
     auto point = ray.origin() + param * ray.direction();
     glm::vec3 normal = glm::normalize(alpha * surface_normal + beta * surface_normal + gamma * surface_normal);
+    if (std::isnan(param)) throw "param is nan!";
 
     return rtr::payload{normal, point, ray, param};
 }
@@ -71,6 +72,8 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
     {
         auto hit = face.hit(ray);
         if (!hit) continue;
+        if (std::isnan(hit->param)) throw "param is nan!";
+
         if (!min_hit || hit->param < min_hit->param)
         {
             min_hit = *hit;

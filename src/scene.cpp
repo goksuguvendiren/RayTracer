@@ -5,10 +5,16 @@
 #include "primitives/sphere.hpp"
 #include "primitives/mesh.hpp"
 #include "utils.hpp"
+#include "OBJ_Loader.hpp"
 
 glm::vec3 to_vec3(float* vert)
 {
     return {vert[0], vert[1], vert[2]};
+}
+
+glm::vec3 to_vec3(const objl::Vector3& vert)
+{
+    return {vert.X, vert.Y, vert.Z};
 }
 
 std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
@@ -29,16 +35,20 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     {
         auto hit = mesh.hit(ray);
         if (!hit) continue;
+        if (std::isnan(hit->param)) throw "param is nan!";
+
         if (!min_hit || hit->param < min_hit->param)
         {
             min_hit = *hit;
         }
     }
 
+    if (std::isnan(min_hit->param)) throw "param is nan!";
+
     return min_hit;
 }
 
-rtr::scene::scene(SceneIO* io)
+rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
     auto& cam = io->camera;
     camera = rtr::camera(to_vec3(cam->position), to_vec3(cam->viewDirection), to_vec3(cam->orthoUp), cam->focalDistance, cam->verticalFOV);
@@ -112,5 +122,58 @@ rtr::scene::scene(SceneIO* io)
             }
         }
         obj = obj->next;
+    }
+}
+
+bool hasEnding (std::string const &fullString, std::string const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+rtr::scene::scene(const std::string &filename) {
+
+    if (hasEnding(filename, ".obj"))
+    {
+        load_obj(filename);
+    }
+    else
+    {
+        throw "Unknown file type!";
+    }
+}
+
+void rtr::scene::load_obj(const std::string& filename)
+{
+    objl::Loader loader;
+    loader.LoadFile(filename);
+
+    std::cerr << loader.LoadedMeshes.size() << '\n';
+
+    int id = 0;
+    for(auto& mesh : loader.LoadedMeshes)
+    {
+        std::vector<rtr::primitives::face> faces;
+        for(int i = 0; i < mesh.Vertices.size(); i += 3)
+        {
+            rtr::primitives::face face_new;
+            for(int j = 0; j < 3; j++)
+            {
+                face_new.vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), -1, mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
+            }
+            face_new.set_normal();
+            faces.push_back(face_new);
+        }
+
+        meshes.emplace_back(faces, "");
+        auto& m = meshes.back();
+        m.id = id++;
+        // obj loader allows for only one material per mesh
+        // also, emitted color is 0, meaning that these meshes cannot emit color right now.
+
+        auto& material = mesh.MeshMaterial;
+        m.materials.emplace_back(to_vec3(material.Kd), to_vec3(material.Ka), to_vec3(material.Ks), glm::vec3{0, 0, 0}, material.Ns, material.Ni);
     }
 }

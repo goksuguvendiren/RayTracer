@@ -12,5 +12,5 @@ include_directories(/usr/local/include)
 add_executable(RayTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.cpp 
     include/renderer.hpp src/renderer.cpp include/camera.hpp include/light.hpp 
         include/primitives/sphere.hpp include/material.hpp include/primitives/mesh.hpp 
-        include/vertex.hpp src/sphere.cpp src/mesh.cpp include/dir_light.hpp)
+        include/vertex.hpp src/sphere.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp)
 target_link_libraries(RayTracer ${OpenCV_LIBS})
