@@ -9,6 +9,8 @@
 #include <vector>
 #include <material.hpp>
 #include "vertex.hpp"
+#include "aabb.hpp"
+#include "kd_tree.hpp"
 
 namespace rtr
 {
@@ -18,9 +20,14 @@ namespace rtr
     {
         struct face
         {
-            face() = default;
+            face(std::array<rtr::vertex, 3> vert) : vertices(std::move(vert)), box(vertices)
+            {
+                set_normal();
+            }
             std::array<rtr::vertex, 3> vertices;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
+            
+            aabb box;
 
             void set_normal();
         };
@@ -28,7 +35,16 @@ namespace rtr
         class mesh
         {
         public:
-            mesh(std::vector<rtr::primitives::face> fcs, const std::string& nm) : faces(std::move(fcs)), name(nm) {}
+            mesh(std::vector<rtr::primitives::face> fcs, const std::string& nm) : faces(std::move(fcs)), name(nm)
+            {
+                std::vector<rtr::primitives::face*> face_ptrs;
+                face_ptrs.reserve(faces.size());
+                for (auto& f : faces)
+                {
+                    face_ptrs.push_back(&f);
+                }
+                tree = rtr::kd_tree(face_ptrs);
+            }
 
             std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
@@ -38,6 +54,7 @@ namespace rtr
 
         private:
             std::vector<rtr::primitives::face> faces;
+            rtr::kd_tree tree;
         };
     }
 }

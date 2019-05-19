@@ -35,15 +35,16 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     {
         auto hit = mesh.hit(ray);
         if (!hit) continue;
-        if (std::isnan(hit->param)) throw "param is nan!";
+        if (std::isnan(hit->param)) throw std::runtime_error("param is nan in scene::hit()!");
 
         if (!min_hit || hit->param < min_hit->param)
         {
+            if (std::isnan(hit->param)) throw std::runtime_error("param is nan in scene::hit() 2!");
             min_hit = *hit;
         }
     }
 
-    if (std::isnan(min_hit->param)) throw "param is nan!";
+    if (min_hit && std::isnan(min_hit->param))throw std::runtime_error("param is nan in scene::hit() 3!");
 
     return min_hit;
 }
@@ -102,12 +103,12 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                 auto polygon = data->poly[i];
                 assert(polygon.numVertices == 3);
 
-                rtr::primitives::face face_new;
+                std::array<rtr::vertex, 3> vertices;
                 for (int j = 0; j < polygon.numVertices; ++j)
                 {
-                    face_new.vertices[j] = rtr::vertex(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
+                    vertices[j] = rtr::vertex(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
                 }
-                face_new.set_normal();
+                rtr::primitives::face face_new(vertices);
                 faces.push_back(face_new);
             }
 
@@ -145,7 +146,7 @@ rtr::scene::scene(const std::string &filename) {
     }
     else
     {
-        throw "Unknown file type!";
+        throw std::runtime_error("unknown file type!");
     }
 }
 
@@ -169,12 +170,13 @@ void rtr::scene::load_obj(const std::string& filename)
         std::vector<rtr::primitives::face> faces;
         for(int i = 0; i < mesh.Vertices.size(); i += 3)
         {
-            rtr::primitives::face face_new;
+            std::array<rtr::vertex, 3> face_vertices;
             for(int j = 0; j < 3; j++)
             {
-                face_new.vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), -1, mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
+                face_vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), -1,            mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
             }
-            face_new.set_normal();
+        
+            rtr::primitives::face face_new(face_vertices);
             faces.push_back(face_new);
         }
 
@@ -194,3 +196,6 @@ void rtr::scene::load_obj(const std::string& filename)
         }
     }
 }
+
+void rtr::scene::build_acceleration()
+{}

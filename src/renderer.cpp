@@ -82,7 +82,7 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
 
     if (!hit) return color;
 
-//    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
+    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
 
     if (rec_depth >= max_rec_depth) return color;
     color = shade(scene, *hit);
@@ -135,7 +135,7 @@ static void UpdateProgress(float progress)
 };
 
 
-void rtr::renderer::render(const rtr::scene &scene)
+std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
 {
     const auto& camera = scene.get_camera();
     rtr::image_plane plane(camera, width, height);
@@ -173,11 +173,7 @@ void rtr::renderer::render(const rtr::scene &scene)
         UpdateProgress(i / (float)height);
     }
 
-    cv::Mat image(width, height, CV_32FC3, frame_buffer.data());
-    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
-    cv::imshow("window", image);
-    cv::imwrite("image.png", image * 255);
-    cv::waitKey(0);
+    return frame_buffer;
 }
 
 glm::vec3 rtr::renderer::get_pixel_pos(const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)

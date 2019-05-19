@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <iostream>
+#include <exception>
 #include <payload.hpp>
 #include <primitives/mesh.hpp>
 #include <ray.hpp>
@@ -50,7 +51,7 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
 
     auto point = ray.origin() + param * ray.direction();
     glm::vec3 normal = glm::normalize(alpha * surface_normal + beta * surface_normal + gamma * surface_normal);
-    if (std::isnan(param)) throw "param is nan!";
+    if (std::isnan(param)) throw std::runtime_error("param is nan in face::hit()!");
 
     return rtr::payload{normal, point, ray, param};
 }
@@ -65,22 +66,25 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
-    std::optional<rtr::payload> min_hit;
-    for (auto& face : faces)
-    {
-        auto hit = face.hit(ray);
-        if (!hit) continue;
-        if (std::isnan(hit->param)) throw "param is nan!";
-
-        if (!min_hit || hit->param < min_hit->param)
-        {
-            min_hit = *hit;
-        }
-    }
-
-    if (min_hit) {
-        min_hit->material = &materials.front();
-        min_hit->obj_id = id;
-    }
-    return min_hit;
+    auto hit = tree.hit(ray);
+    return hit;
+//
+//    std::optional<rtr::payload> min_hit;
+//    for (auto& face : faces)
+//    {
+//        auto hit = face.hit(ray);
+//        if (!hit) continue;
+//        if (std::isnan(hit->param)) throw std::runtime_error("param is nan in mesh::hit()!");
+//
+//        if (!min_hit || hit->param < min_hit->param)
+//        {
+//            min_hit = *hit;
+//        }
+//    }
+//
+//    if (min_hit) {
+//        min_hit->material = &materials.front();
+//        min_hit->obj_id = id;
+//    }
+//    return min_hit;
 }
