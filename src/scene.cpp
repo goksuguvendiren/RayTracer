@@ -161,7 +161,7 @@ void rtr::scene::load_obj(const std::string& filename)
     // create a default camera located at the origin, looking at the -z direction.
     auto focal_distance = 12.2118f;
     auto vertical_fov = 0.785398f;
-    camera = rtr::camera(glm::vec3{0, 0, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
+    camera = rtr::camera(glm::vec3{-1, 3, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
     
     // create default light sources
     lghts.emplace_back(glm::vec3{-1.84647, 0.778452, 2.67544}, glm::vec3{1, 1, 1});
