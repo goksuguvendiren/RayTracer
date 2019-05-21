@@ -60,5 +60,6 @@ namespace rtr
         std::vector<rtr::dir_light> dir_lghts;
 
         void load_obj(const std::string& filename);
+        void build_acceleration();
     };
 }

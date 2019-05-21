@@ -12,7 +12,7 @@
 #include <math.h>
 
 // Print progress to console while loading (large models)
-#define OBJL_CONSOLE_OUTPUT
+//#define OBJL_CONSOLE_OUTPUT
 
 // Namespace: OBJL
 //
@@ -144,7 +144,7 @@ namespace objl
     {
         Material()
         {
-            name;
+            name = "";
             Ns = 0.0f;
             Ni = 0.0f;
             d = 0.0f;

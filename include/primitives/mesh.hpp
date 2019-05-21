@@ -37,6 +37,7 @@ namespace rtr
         public:
             mesh(std::vector<rtr::primitives::face> fcs, const std::string& nm) : faces(std::move(fcs)), name(nm)
             {
+                auto begin = std::chrono::system_clock::now();
                 std::vector<rtr::primitives::face*> face_ptrs;
                 face_ptrs.reserve(faces.size());
                 for (auto& f : faces)
@@ -44,6 +45,9 @@ namespace rtr
                     face_ptrs.push_back(&f);
                 }
                 tree = rtr::kd_tree(face_ptrs);
+                
+                auto end = std::chrono::system_clock::now();
+                std::cout << "BVH construction took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.\n";
             }
 
             std::vector<rtr::material> materials;

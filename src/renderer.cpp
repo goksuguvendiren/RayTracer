@@ -82,7 +82,7 @@ glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int
 
     if (!hit) return color;
 
-    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
+//    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
 
     if (rec_depth >= max_rec_depth) return color;
     color = shade(scene, *hit);
@@ -134,7 +134,6 @@ static void UpdateProgress(float progress)
     std::cout.flush();
 };
 
-
 std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
 {
     const auto& camera = scene.get_camera();
@@ -157,10 +156,6 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
         pix_center = row_begin;
         for (int j = 0; j < width; ++j)
         {
-            if(i == 229 && j == 210)
-            {
-                std::cout << "hi" << '\n';
-            }
             pix_center += right;
             auto pixel_position = get_pixel_pos(pix_center, right, below);
             //create the ray

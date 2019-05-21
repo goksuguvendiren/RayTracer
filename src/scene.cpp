@@ -5,6 +5,9 @@
 #include "primitives/sphere.hpp"
 #include "primitives/mesh.hpp"
 #include "utils.hpp"
+
+#define OBJL_CONSOLE_OUTPUT
+
 #include "OBJ_Loader.hpp"
 
 glm::vec3 to_vec3(float* vert)

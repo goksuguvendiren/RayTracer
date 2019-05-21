@@ -9,6 +9,8 @@
 #include <primitives/mesh.hpp>
 #include <ray.hpp>
 
+//#undef BVH_ENABLED
+
 inline float determinant(const glm::vec3& col1, const glm::vec3& col2, const glm::vec3& col3)
 {
     return col1.x * (col2.y * col3.z - col2.z * col3.y) -
@@ -66,25 +68,34 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
+#ifdef BVH_ENABLED
     auto hit = tree.hit(ray);
+
+    if (hit)
+    {
+        hit->material = &materials.front();
+        hit->obj_id = id;
+    }
+
     return hit;
-//
-//    std::optional<rtr::payload> min_hit;
-//    for (auto& face : faces)
-//    {
-//        auto hit = face.hit(ray);
-//        if (!hit) continue;
-//        if (std::isnan(hit->param)) throw std::runtime_error("param is nan in mesh::hit()!");
-//
-//        if (!min_hit || hit->param < min_hit->param)
-//        {
-//            min_hit = *hit;
-//        }
-//    }
-//
-//    if (min_hit) {
-//        min_hit->material = &materials.front();
-//        min_hit->obj_id = id;
-//    }
-//    return min_hit;
+#else
+    std::optional<rtr::payload> min_hit;
+    for (auto& face : faces)
+    {
+        auto hit = face.hit(ray);
+        if (!hit) continue;
+        if (std::isnan(hit->param)) throw std::runtime_error("param is nan in mesh::hit()!");
+
+        if (!min_hit || hit->param < min_hit->param)
+        {
+            min_hit = *hit;
+        }
+    }
+
+    if (min_hit) {
+        min_hit->material = &materials.front();
+        min_hit->obj_id = id;
+    }
+    return min_hit;
+#endif
 }

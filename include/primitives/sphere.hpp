@@ -13,7 +13,7 @@
 
 namespace rtr
 {
-    class payload;
+    struct payload;
     namespace primitives
     {
         class sphere
