@@ -22,6 +22,8 @@ namespace rtr
         }
 
         std::vector<glm::vec3> render(const rtr::scene& scene);
+        void render_line(const rtr::scene &scene, const glm::vec3& row_begin, int i);
+
         glm::vec3 get_pixel_pos(const glm::vec3& top_left, const glm::vec3& right, const glm::vec3& below);
 
     private:

@@ -134,6 +134,28 @@ static void UpdateProgress(float progress)
     std::cout.flush();
 };
 
+
+void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_begin, int i)
+{
+    const auto& camera = scene.get_camera();
+    rtr::image_plane plane(camera, width, height);
+    
+    auto right = (1 / float(width)) * plane.right;
+    auto below = -(1 / float(height)) * plane.up;
+    
+    glm::vec3 pix_center = row_begin;
+    for (int j = 0; j < width; ++j)
+    {
+        pix_center += right;
+        auto pixel_position = get_pixel_pos(pix_center, right, below);
+        //create the ray
+        auto ray = rtr::ray(camera.position(), pixel_position - camera.position(), true);
+
+        auto color = trace(scene, ray, 0, 5);
+        frame_buffer[i * width + j] = color;
+    }
+}
+
 std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
 {
     const auto& camera = scene.get_camera();
@@ -153,17 +175,7 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     for (int i = 0; i < height; ++i)
     {
         row_begin += below;
-        pix_center = row_begin;
-        for (int j = 0; j < width; ++j)
-        {
-            pix_center += right;
-            auto pixel_position = get_pixel_pos(pix_center, right, below);
-            //create the ray
-            auto ray = rtr::ray(camera.position(), pixel_position - camera.position(), true);
-
-            auto color = trace(scene, ray, 0, 5);
-            frame_buffer[i * width + j] = color;
-        }
+        render_line(scene, row_begin, i);
         
         UpdateProgress(i / (float)height);
     }
