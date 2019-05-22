@@ -3,10 +3,14 @@
 //
 
 #include <optional>
+#include <thread>
+
 #include <renderer.hpp>
 #include "scene.hpp"
 #include "ray.hpp"
 #include "utils.hpp"
+
+//#define THREADS_ENABLED
 
 static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
@@ -134,7 +138,6 @@ static void UpdateProgress(float progress)
     std::cout.flush();
 };
 
-
 void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_begin, int i)
 {
     const auto& camera = scene.get_camera();
@@ -171,14 +174,33 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     cv::namedWindow("window");
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
-    auto row_begin = pix_center;
+#ifdef THREADS_ENABLED
+    constexpr int number_of_threads = 2;
+    std::vector<std::thread> threads;
+    for (int i = 0; i < number_of_threads; ++i)
+    {
+        threads.push_back(std::thread([i, &scene, pix_center, this, &below]
+        {
+            std::cerr << "thread " << i << " started!\n";
+            for (int j = i; j < height; j += number_of_threads)
+            {
+                auto row_begin = pix_center + below * float(j);
+                render_line(scene, row_begin, j);
+            }
+        }));
+    }
+    
+    for (auto& thread : threads) { thread.join(); }
+#else
+    auto row_begin = pix_center;// + i * below;
     for (int i = 0; i < height; ++i)
     {
-        row_begin += below;
+        row_begin += below;// * 4;
         render_line(scene, row_begin, i);
-        
+
         UpdateProgress(i / (float)height);
     }
+#endif
 
     return frame_buffer;
 }

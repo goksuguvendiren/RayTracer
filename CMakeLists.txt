@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 find_package(ZLIB REQUIRED)
 
-include_directories(${ZLIB_INCLUDE_DIRS})
+#include_directories(${ZLIB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/fbx)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(/usr/local/include)
@@ -16,10 +16,14 @@ add_executable(RayTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.c
         include/primitives/sphere.hpp include/material.hpp include/primitives/mesh.hpp 
         include/vertex.hpp src/sphere.cpp include/aabb.hpp include/kd_tree.hpp 
 		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp
-		src/fbx/fbxdocument.cpp src/fbx/fbxnode.cpp src/fbx/fbxproperty.cpp 
-		src/fbx/fbxutil.cpp)
+#		src/fbx/fbxdocument.cpp src/fbx/fbxnode.cpp src/fbx/fbxproperty.cpp 
+#		src/fbx/fbxutil.cpp)
+		)
 if (BVH_ENABLED)
 	target_compile_definitions(RayTracer PUBLIC BVH_ENABLED)
 endif()
+if (THREADS_ENABLED)
+target_compile_definitions(RayTracer PUBLIC BVH_ENABLED)
+endif()
 target_link_libraries(RayTracer ${OpenCV_LIBS})
-target_link_libraries(RayTracer ${ZLIB_LIBRARIES})
+#target_link_libraries(RayTracer ${ZLIB_LIBRARIES})
