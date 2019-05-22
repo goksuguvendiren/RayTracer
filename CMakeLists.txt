@@ -16,8 +16,6 @@ add_executable(RayTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.c
         include/primitives/sphere.hpp include/material.hpp include/primitives/mesh.hpp 
         include/vertex.hpp src/sphere.cpp include/aabb.hpp include/kd_tree.hpp 
 		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp
-#		src/fbx/fbxdocument.cpp src/fbx/fbxnode.cpp src/fbx/fbxproperty.cpp 
-#		src/fbx/fbxutil.cpp)
 		)
 if (BVH_ENABLED)
 	target_compile_definitions(RayTracer PUBLIC BVH_ENABLED)

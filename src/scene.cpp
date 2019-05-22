@@ -97,8 +97,8 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
         {
             auto data = reinterpret_cast<PolySetIO*>(obj->data);
             assert(data->type == PolySetType::POLYSET_TRI_MESH);
-            assert(data->normType == NormType::PER_FACE_NORMAL);
-            assert(data->materialBinding == MaterialBinding::PER_OBJECT_MATERIAL);
+//            assert(data->normType == NormType::PER_FACE_NORMAL);
+//            assert(data->materialBinding == MaterialBinding::PER_OBJECT_MATERIAL);
 
             std::vector<rtr::primitives::face> faces;
             for (int i = 0; i < data->numPolys; ++i)

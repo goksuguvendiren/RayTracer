@@ -7,7 +7,7 @@ int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
 
-    std::string scene_path = "../../Scenes/obj/dragon/dragon.obj";
+    std::string scene_path = "../../Scenes/HW3/test1.ascii";
     if (argc > 1) scene_path = std::string(argv[1]);
 
     rtr::scene scene(scene_path);
@@ -16,8 +16,8 @@ int main(int argc, const char** argv)
     std::cerr << "Scene loading took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
 
     begin = std::chrono::system_clock::now();
-    auto width = 1500;
-    auto height = 1500;
+    auto width = 400;
+    auto height = 400;
     rtr::renderer r(width, height);
     auto output_buffer = r.render(scene);
     end = std::chrono::system_clock::now();

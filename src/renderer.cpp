@@ -4,13 +4,14 @@
 
 #include <optional>
 #include <thread>
+#include <random>
 
 #include <renderer.hpp>
 #include "scene.hpp"
 #include "ray.hpp"
 #include "utils.hpp"
 
-//#define THREADS_ENABLED
+#define THREADS_ENABLED
 
 static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
@@ -138,6 +139,26 @@ static void UpdateProgress(float progress)
     std::cout.flush();
 };
 
+glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const glm::vec3& camera_pos, const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)
+{
+    // supersampling - jittered stratified
+    constexpr int sq_sample_pp = 5;
+    glm::vec3 color = {0, 0, 0};
+    
+    for (int k = 0; k < sq_sample_pp; ++k)
+    {
+        for (int m = 0; m < sq_sample_pp; ++m)
+        {
+            auto sub_pix_position = get_pixel_pos(pix_center, right, below, k, m, sq_sample_pp);
+            auto ray = rtr::ray(camera_pos, sub_pix_position - camera_pos, true);
+            
+            color += trace(scene, ray, 0, 5);
+        }
+    }
+    
+    return color / float(sq_sample_pp * sq_sample_pp);
+}
+
 void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_begin, int i)
 {
     const auto& camera = scene.get_camera();
@@ -150,11 +171,8 @@ void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_be
     for (int j = 0; j < width; ++j)
     {
         pix_center += right;
-        auto pixel_position = get_pixel_pos(pix_center, right, below);
-        //create the ray
-        auto ray = rtr::ray(camera.position(), pixel_position - camera.position(), true);
+        auto color = render_pixel(scene, camera.position(), pix_center, right, below);
 
-        auto color = trace(scene, ray, 0, 5);
         frame_buffer[i * width + j] = color;
     }
 }
@@ -168,24 +186,25 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     auto below = -(1 / float(height)) * plane.up;
 
     auto pix_center = plane.top_left_position();
-    pix_center -= right * 0.5f;
-    pix_center -= below * 0.5f;
-
+    
     cv::namedWindow("window");
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
 #ifdef THREADS_ENABLED
     constexpr int number_of_threads = 2;
     std::vector<std::thread> threads;
+    int n = 0;
     for (int i = 0; i < number_of_threads; ++i)
     {
-        threads.push_back(std::thread([i, &scene, pix_center, this, &below]
+        threads.push_back(std::thread([i, &scene, pix_center, this, &below, &n]
         {
             std::cerr << "thread " << i << " started!\n";
             for (int j = i; j < height; j += number_of_threads)
             {
                 auto row_begin = pix_center + below * float(j);
                 render_line(scene, row_begin, j);
+                n++;
+                UpdateProgress(n / (float)height);
             }
         }));
     }
@@ -205,11 +224,23 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     return frame_buffer;
 }
 
-glm::vec3 rtr::renderer::get_pixel_pos(const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)
+float get_random_float()
 {
-    auto x_offset = 0.5f;
-    auto y_offset = 0.5f;
+    static std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    static std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<float> dis(0, 1.0);
+    
+    return dis(gen);
+}
 
-    auto sample = pix_center + right * x_offset + below * y_offset;
+glm::vec3 rtr::renderer::get_pixel_pos(const glm::vec3& top_left, const glm::vec3& right, const glm::vec3& below, int u, int v, int sq_sample_pp)
+{
+    auto random_u = get_random_float();
+    auto random_v = get_random_float();
+    
+    auto x_offset = (random_u * (1.f / sq_sample_pp)) + ((float)u / sq_sample_pp);
+    auto y_offset = (random_v * (1.f / sq_sample_pp)) + ((float)v / sq_sample_pp);
+
+    auto sample = top_left + right * x_offset + below * y_offset;
     return sample;
 }
