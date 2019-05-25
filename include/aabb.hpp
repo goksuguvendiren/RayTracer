@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <glm/glm.hpp>
 #include "vertex.hpp"
 #include "ray.hpp"

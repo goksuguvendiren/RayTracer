@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(RayTracer)
 
-set(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 find_package(OpenCV REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -17,8 +17,8 @@ add_executable(RayTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.c
         include/vertex.hpp src/sphere.cpp include/aabb.hpp include/kd_tree.hpp 
 		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp
 		)
-if (BVH_ENABLED)
-	target_compile_definitions(RayTracer PUBLIC BVH_ENABLED)
+if (BVH_DISABLED)
+	target_compile_definitions(RayTracer PUBLIC BVH_DISABLED)
 endif()
 if (THREADS_ENABLED)
 target_compile_definitions(RayTracer PUBLIC THREADS_ENABLED)

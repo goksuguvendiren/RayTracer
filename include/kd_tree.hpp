@@ -2,6 +2,7 @@
 
 #include <optional>
 #include "aabb.hpp"
+#include <memory>
 
 namespace rtr
 {

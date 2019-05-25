@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <array>
 #include <optional>
 #include <vector>

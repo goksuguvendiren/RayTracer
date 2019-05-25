@@ -68,7 +68,7 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
-#ifdef BVH_ENABLED
+#ifdef BVH_DISABLED
     auto hit = tree.hit(ray);
 
     if (hit)

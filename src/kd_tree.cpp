@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include <random>
 #include <optional>
@@ -12,17 +13,17 @@ int get_random(int min, int max) // box inclusive
 {
     static std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(min, max); // distribution in range [1, 6]
+    std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
     
     return dist(rng);
 }
 
-float get_random(float min, float max) // box inclusive
+float get_random(float minf, float maxf) // box inclusive
 {
     static std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_real_distribution<std::mt19937::result_type> dist(min, max); // distribution in range [1, 6]
-    
+    std::uniform_real_distribution<float> dist(minf, maxf);
+
     return dist(rng);
 }
 

@@ -21,8 +21,13 @@ namespace rtr
 
         auto up() const { return up_dir; }
         auto right() const { return right_dir; }
+        auto view() const { return view_dir; }
         auto position() const { return eye_pos; }
 
+        auto focal_distance() const { return focal_dist; }
+        auto fov() const { return vert_fov; }
+
+    private:
         glm::vec3 eye_pos;
         glm::vec3 view_dir;
         glm::vec3 up_dir;
@@ -37,13 +42,13 @@ namespace rtr
     public:
         image_plane(const camera& cam, unsigned int w, unsigned int h)
         {
-            float scale = cam.focal_dist;
-            auto center = cam.eye_pos + scale * cam.view_dir;
-            up = scale * std::tan(cam.vert_fov / 2.f) * cam.up_dir;
+            float scale = cam.focal_distance();
+            auto center = cam.position() + scale * cam.view();
+            up = scale * std::tan(cam.fov() / 2.f) * cam.up();
 
             float aspect_ratio = w / float(h);
-            auto horizontal_fov = cam.vert_fov * aspect_ratio;
-            right = scale * std::tan(horizontal_fov / 2.f) * cam.right_dir;
+            auto horizontal_fov = cam.fov() * aspect_ratio;
+            right = scale * std::tan(horizontal_fov / 2.f) * cam.right();
 
             top_left = center + up - right;
             up *= 2;

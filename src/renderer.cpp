@@ -142,7 +142,7 @@ static void UpdateProgress(float progress)
 glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const glm::vec3& camera_pos, const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 5;
+    constexpr int sq_sample_pp = 1;
     glm::vec3 color = {0, 0, 0};
     
     for (int k = 0; k < sq_sample_pp; ++k)
