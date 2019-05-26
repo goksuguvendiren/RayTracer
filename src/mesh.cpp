@@ -68,7 +68,8 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
-#ifdef BVH_DISABLED
+#ifndef BVH_DISABLED
+//    std::cerr << "BVH Enabled.\n";
     auto hit = tree.hit(ray);
 
     if (hit)
@@ -79,6 +80,7 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
 
     return hit;
 #else
+    std::cerr << "BVH Disabled.\n";
     std::optional<rtr::payload> min_hit;
     for (auto& face : faces)
     {

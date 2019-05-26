@@ -4,7 +4,6 @@
 
 #include <optional>
 #include <thread>
-#include <random>
 
 #include <renderer.hpp>
 #include "scene.hpp"
@@ -139,17 +138,21 @@ static void UpdateProgress(float progress)
     std::cout.flush();
 };
 
-glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const glm::vec3& camera_pos, const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)
+glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& camera, const glm::vec3& pix_center,
+                                      const rtr::image_plane& plane, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 1;
+    constexpr int sq_sample_pp = 5;
+    auto is_lens = std::bool_constant<true>();
+
     glm::vec3 color = {0, 0, 0};
     
     for (int k = 0; k < sq_sample_pp; ++k)
     {
         for (int m = 0; m < sq_sample_pp; ++m)
         {
-            auto sub_pix_position = get_pixel_pos(pix_center, right, below, k, m, sq_sample_pp);
+            auto camera_pos = camera.position();
+            auto sub_pix_position = get_pixel_pos<sq_sample_pp>(pix_center, plane, camera, right, below, k, m, is_lens); // get the q
             auto ray = rtr::ray(camera_pos, sub_pix_position - camera_pos, true);
             
             color += trace(scene, ray, 0, 5);
@@ -164,14 +167,14 @@ void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_be
     const auto& camera = scene.get_camera();
     rtr::image_plane plane(camera, width, height);
     
-    auto right = (1 / float(width)) * plane.right;
+    auto right =  (1 / float(width))  * plane.right;
     auto below = -(1 / float(height)) * plane.up;
     
     glm::vec3 pix_center = row_begin;
     for (int j = 0; j < width; ++j)
     {
         pix_center += right;
-        auto color = render_pixel(scene, camera.position(), pix_center, right, below);
+        auto color = render_pixel(scene, camera, pix_center, plane, right, below);
 
         frame_buffer[i * width + j] = color;
     }
@@ -191,14 +194,15 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
 #ifdef THREADS_ENABLED
-    constexpr int number_of_threads = 2;
+    int number_of_threads = std::thread::hardware_concurrency();
+    std::cerr << "Threads enabled! Running " << number_of_threads << " threads!";
     std::vector<std::thread> threads;
     int n = 0;
     for (int i = 0; i < number_of_threads; ++i)
     {
-        threads.push_back(std::thread([i, &scene, pix_center, this, &below, &n]
+        threads.push_back(std::thread([i, &scene, pix_center, this, &below, &n, number_of_threads]
         {
-            std::cerr << "thread " << i << " started!\n";
+//            std::cerr << "thread " << i << " started!\n";
             for (int j = i; j < height; j += number_of_threads)
             {
                 auto row_begin = pix_center + below * float(j);
@@ -211,6 +215,7 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     
     for (auto& thread : threads) { thread.join(); }
 #else
+    std::cerr << "Threads are disabled!" << '\n';
     auto row_begin = pix_center;// + i * below;
     for (int i = 0; i < height; ++i)
     {
@@ -222,25 +227,4 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
 #endif
 
     return frame_buffer;
-}
-
-float get_random_float()
-{
-    static std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    static std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<float> dis(0, 1.0);
-    
-    return dis(gen);
-}
-
-glm::vec3 rtr::renderer::get_pixel_pos(const glm::vec3& top_left, const glm::vec3& right, const glm::vec3& below, int u, int v, int sq_sample_pp)
-{
-    auto random_u = get_random_float();
-    auto random_v = get_random_float();
-    
-    auto x_offset = (random_u * (1.f / sq_sample_pp)) + ((float)u / sq_sample_pp);
-    auto y_offset = (random_v * (1.f / sq_sample_pp)) + ((float)v / sq_sample_pp);
-
-    auto sample = top_left + right * x_offset + below * y_offset;
-    return sample;
 }
