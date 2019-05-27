@@ -190,7 +190,7 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     cv::namedWindow("window");
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
-#ifdef THREADS_ENABLED
+#ifndef THREADS_DISABLED
     constexpr int number_of_threads = 2;
     std::vector<std::thread> threads;
     int n = 0;

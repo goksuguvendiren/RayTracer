@@ -7,6 +7,7 @@
 #include <array>
 #include <optional>
 #include <vector>
+#include <chrono>
 #include <material.hpp>
 #include "vertex.hpp"
 #include "aabb.hpp"
@@ -20,14 +21,31 @@ namespace rtr
     {
         struct face
         {
-            face(std::array<rtr::vertex, 3> vert) : vertices(std::move(vert)), box(vertices)
+            enum class normal_types
             {
-                set_normal();
+                per_vertex,
+                per_face
+            };
+
+            enum class material_binding
+            {
+                per_vertex,
+                per_object
+            };
+
+            face(std::array<rtr::vertex, 3> vert, normal_types norm_type, material_binding mat_type) : vertices(std::move(vert)), box(vertices),
+                        normal_type(norm_type), material_type(mat_type)
+            {
+                if (normal_type == normal_types::per_face)
+                    set_normal();
             }
             std::array<rtr::vertex, 3> vertices;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
             
             aabb box;
+
+            normal_types normal_type;
+            material_binding material_type;
 
             void set_normal();
         };

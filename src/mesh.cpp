@@ -52,7 +52,17 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
     }
 
     auto point = ray.origin() + param * ray.direction();
-    glm::vec3 normal = glm::normalize(alpha * surface_normal + beta * surface_normal + gamma * surface_normal);
+    glm::vec3 normal;
+
+    if(normal_type == normal_types::per_vertex)
+    {
+        normal = glm::normalize(alpha * a.normal + beta * b.normal + gamma * c.normal);
+    }
+    else
+    {
+        normal = glm::normalize(surface_normal);
+    }
+
     if (std::isnan(param)) throw std::runtime_error("param is nan in face::hit()!");
 
     return rtr::payload{normal, point, ray, param};
@@ -68,7 +78,7 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
-#ifdef BVH_ENABLED
+#ifndef BVH_DISABLED
     auto hit = tree.hit(ray);
 
     if (hit)

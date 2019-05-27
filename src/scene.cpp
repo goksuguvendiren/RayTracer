@@ -20,6 +20,31 @@ glm::vec3 to_vec3(const objl::Vector3& vert)
     return {vert.X, vert.Y, vert.Z};
 }
 
+rtr::primitives::face::normal_types to_rtr(NormType normal)
+{
+    using rtr::primitives::face;
+    switch (normal)
+    {
+        case NormType::PER_FACE_NORMAL:
+            return face::normal_types::per_face;
+        case NormType::PER_VERTEX_NORMAL:
+            return face::normal_types::per_vertex;
+    }
+}
+
+rtr::primitives::face::material_binding to_rtr(MaterialBinding material)
+{
+    using rtr::primitives::face;
+    switch (material)
+    {
+        case MaterialBinding::PER_OBJECT_MATERIAL:
+            return face::material_binding::per_object;
+        case MaterialBinding::PER_VERTEX_MATERIAL:
+            return face::material_binding::per_vertex;
+    }
+}
+
+
 std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
 {
     std::optional<rtr::payload> min_hit = std::nullopt;
@@ -111,7 +136,7 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                 {
                     vertices[j] = rtr::vertex(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
                 }
-                rtr::primitives::face face_new(vertices);
+                rtr::primitives::face face_new(vertices, to_rtr(data->normType), to_rtr(data->materialBinding));
                 faces.push_back(face_new);
             }
 
@@ -179,7 +204,7 @@ void rtr::scene::load_obj(const std::string& filename)
                 face_vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), -1,            mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
             }
         
-            rtr::primitives::face face_new(face_vertices);
+            rtr::primitives::face face_new(face_vertices, rtr::primitives::face::normal_types::per_vertex, rtr::primitives::face::material_binding::per_object);
             faces.push_back(face_new);
         }
 
