@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <stack>
 #include "camera.hpp"
+#include "utils.hpp"
 
 namespace rtr
 {
@@ -45,14 +46,6 @@ namespace rtr
 
         glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth);
     };
-
-    inline std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    inline std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    inline float get_random_float()
-    {
-        std::uniform_real_distribution<float> dis(0, 1.0);
-        return dis(gen);
-    }
 
     template <int sq_sample_pp>
     glm::vec3 rtr::renderer::get_pixel_pos(const glm::vec3& top_left, const rtr::image_plane& plane, const rtr::camera& camera,

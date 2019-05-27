@@ -55,7 +55,8 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
 rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
     auto& cam = io->camera;
-    camera = rtr::camera(to_vec3(cam->position), to_vec3(cam->viewDirection), to_vec3(cam->orthoUp), cam->focalDistance, cam->verticalFOV);
+//    camera = rtr::camera(to_vec3(cam->position), to_vec3(cam->viewDirection), to_vec3(cam->orthoUp), cam->focalDistance, cam->verticalFOV);
+    camera = rtr::camera(to_vec3(cam->position), to_vec3(cam->viewDirection), to_vec3(cam->orthoUp), cam->focalDistance, cam->verticalFOV, 12.f, false);
 
     auto* light = io->lights;
     while(light != nullptr)
@@ -85,6 +86,7 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                                  to_vec3(data->zaxis), data->zlength);
 
             auto& sph = spheres.back();
+            std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
             sph.id = id++;
             for (int i = 0; i < obj->numMaterials; ++i)
             {
@@ -161,8 +163,9 @@ void rtr::scene::load_obj(const std::string& filename)
     // create a default camera located at the origin, looking at the -z direction.
     auto focal_distance = 12.2118f;
     auto vertical_fov = 0.785398f;
-    camera = rtr::camera(glm::vec3{-1, 3, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
-    
+    camera = rtr::camera(glm::vec3{-1, 3, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov, focal_distance, false ); // focal dist = image plane dist
+//    camera = rtr::camera(glm::vec3{-1, 3, 10}, glm::vec3{0, 0, -1}, glm::vec3{0, 1, 0}, focal_distance, vertical_fov);
+
     // create default light sources
     lghts.emplace_back(glm::vec3{-1.84647, 0.778452, 2.67544}, glm::vec3{1, 1, 1});
     lghts.emplace_back(glm::vec3{2.09856, 1.43311, 0.977627}, glm::vec3{1, 1, 1});

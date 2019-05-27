@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "utils.hpp"
+
 namespace rtr
 {
     class camera
@@ -15,7 +17,17 @@ namespace rtr
         camera(const glm::vec3& pos, const glm::vec3& view, const glm::vec3& up, float foc, float fov, float ipd = 1.0f, bool pin = true) :
                 eye_pos(pos), view_dir(glm::normalize(view)), up_dir(glm::normalize(up)), focal_dist(foc), vert_fov(fov), pinhole(pin), image_plane_dist(ipd)
         {
-            if (!pin) image_plane_dist = focal_dist;
+            if (pin)
+            {
+                // if the camera model is a pinhole camera, then the distance to the image plane is
+                // the focal distance
+                image_plane_dist = focal_dist;
+            }
+            else
+            {
+                //TODO : make this variable
+                lens_width = 0.1;
+            }
 
             right_dir = glm::normalize(glm::cross(view_dir, up_dir));
             up_dir = glm::normalize(glm::cross(right_dir, view_dir));
@@ -24,7 +36,9 @@ namespace rtr
         auto up() const { return up_dir; }
         auto right() const { return right_dir; }
         auto view() const { return view_dir; }
-        auto position() const { return eye_pos; }
+        auto center() const { return eye_pos; }
+
+        glm::vec3 position() const { return pinhole ? eye_pos : point_sample_lens(); }
 
         auto focal_distance() const { return focal_dist; }
         auto image_plane_distance() const { return image_plane_dist; }
@@ -38,11 +52,20 @@ namespace rtr
         glm::vec3 up_dir;
         glm::vec3 right_dir; 
 
+        float lens_width;
+
         float focal_dist;
         float image_plane_dist;
         float vert_fov;
 
         bool pinhole;
+        glm::vec3 point_sample_lens() const
+        {
+            auto u = get_random_float(-1, 1);
+            auto v = get_random_float(-1, 1);
+
+            return eye_pos + u * right_dir * lens_width + v * up_dir * lens_width;
+        }
     };
 
     class image_plane
@@ -64,7 +87,8 @@ namespace rtr
             }
             else
             {
-                center = cam.position() - scale * cam.view(); // different
+                // The camera has a lens, in this case the image plane is behind the camera
+                center = cam.position() - scale * cam.view();
             }
             top_left = center + up - right; // CAN BE DIFFERENT! Check!
 
