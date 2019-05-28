@@ -11,8 +11,6 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
-#define THREADS_ENABLED
-
 static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
     return glm::normalize(2 * glm::dot(normal, light) * normal - light);
@@ -55,9 +53,6 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 
     auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
     glm::vec3 color = ambient;
-
-//    return (payload.hit_normal + glm::vec3(1)) / 2.f;
-//    return mat->diffuse;
 
     scene.for_each_light([&payload, &color, &mat, &scene](auto light)
     {

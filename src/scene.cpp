@@ -144,9 +144,7 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                     auto& poly = polygon.vert[j];
                     vertices.at(j) = rtr::vertex(to_vec3(poly.pos), to_vec3(poly.norm), &materials.at(poly.materialIndex), poly.s, poly.t);
                 }
-//                rtr::primitives::face face_new(vertices, to_rtr(data->normType), to_rtr(MaterialBinding::PER_OBJECT_MATERIAL));
-                rtr::primitives::face face_new(vertices, to_rtr(data->normType), to_rtr(data->materialBinding));
-                faces.push_back(std::move(face_new));
+                faces.emplace_back(vertices, to_rtr(data->normType), to_rtr(data->materialBinding));
             }
 
             meshes.emplace_back(faces, obj->name ? obj->name : "");
