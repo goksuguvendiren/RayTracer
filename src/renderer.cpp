@@ -10,8 +10,6 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
-#define THREADS_ENABLED
-
 static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
 {
     return glm::normalize(2 * glm::dot(normal, light) * normal - light);
@@ -193,9 +191,9 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     cv::namedWindow("window");
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
-#ifdef THREADS_ENABLED
+#ifndef THREADS_DISABLED
     int number_of_threads = std::thread::hardware_concurrency();
-    std::cerr << "Threads enabled! Running " << number_of_threads << " threads!";
+    std::cerr << "Threads enabled! Running " << number_of_threads << " threads!\n";
     std::vector<std::thread> threads;
     int n = 0;
     for (int i = 0; i < number_of_threads; ++i)

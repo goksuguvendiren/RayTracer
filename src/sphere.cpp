@@ -38,5 +38,5 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
         return std::nullopt;
     }
 
-    return rtr::payload{surface_normal, hit_point, ray, param, id, &materials.front()};
+    return rtr::payload{surface_normal, hit_point, ray, param, &materials.front(), id};
 }

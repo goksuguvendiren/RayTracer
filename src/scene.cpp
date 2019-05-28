@@ -20,6 +20,31 @@ glm::vec3 to_vec3(const objl::Vector3& vert)
     return {vert.X, vert.Y, vert.Z};
 }
 
+rtr::primitives::face::normal_types to_rtr(NormType normal)
+{
+    using rtr::primitives::face;
+    switch (normal)
+    {
+        case NormType::PER_FACE_NORMAL:
+            return face::normal_types::per_face;
+        case NormType::PER_VERTEX_NORMAL:
+            return face::normal_types::per_vertex;
+    }
+}
+
+rtr::primitives::face::material_binding to_rtr(MaterialBinding material)
+{
+    using rtr::primitives::face;
+    switch (material)
+    {
+        case MaterialBinding::PER_OBJECT_MATERIAL:
+            return face::material_binding::per_object;
+        case MaterialBinding::PER_VERTEX_MATERIAL:
+            return face::material_binding::per_vertex;
+    }
+}
+
+
 std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
 {
     std::optional<rtr::payload> min_hit = std::nullopt;
@@ -99,8 +124,15 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
         {
             auto data = reinterpret_cast<PolySetIO*>(obj->data);
             assert(data->type == PolySetType::POLYSET_TRI_MESH);
-//            assert(data->normType == NormType::PER_FACE_NORMAL);
-//            assert(data->materialBinding == MaterialBinding::PER_OBJECT_MATERIAL);
+
+            std::vector<material> materials;
+            materials.reserve(obj->numMaterials);
+            for (int i = 0; i < obj->numMaterials; ++i)
+            {
+                materials.emplace_back(to_vec3(obj->material[i].diffColor), to_vec3(obj->material[i].ambColor),
+                                       to_vec3(obj->material[i].specColor), to_vec3(obj->material[i].emissColor),
+                                       obj->material[i].shininess, obj->material[i].ktran);
+            }
 
             std::vector<rtr::primitives::face> faces;
             for (int i = 0; i < data->numPolys; ++i)
@@ -111,21 +143,16 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                 std::array<rtr::vertex, 3> vertices;
                 for (int j = 0; j < polygon.numVertices; ++j)
                 {
-                    vertices[j] = rtr::vertex(to_vec3(polygon.vert[j].pos), to_vec3(polygon.vert[j].norm), polygon.vert[j].materialIndex, polygon.vert[j].s, polygon.vert[j].t);
+                    auto& poly = polygon.vert[j];
+                    vertices.at(j) = rtr::vertex(to_vec3(poly.pos), to_vec3(poly.norm), &materials.at(poly.materialIndex), poly.s, poly.t);
                 }
-                rtr::primitives::face face_new(vertices);
-                faces.push_back(face_new);
+                faces.emplace_back(vertices, to_rtr(data->normType), to_rtr(data->materialBinding));
             }
 
             meshes.emplace_back(faces, obj->name ? obj->name : "");
             auto& mesh = meshes.back();
             mesh.id = id++;
-            for (int i = 0; i < obj->numMaterials; ++i)
-            {
-                mesh.materials.emplace_back(to_vec3(obj->material->diffColor), to_vec3(obj->material->ambColor),
-                                           to_vec3(obj->material->specColor), to_vec3(obj->material->emissColor),
-                                           obj->material->shininess, obj->material->ktran);
-            }
+            mesh.materials = std::move(materials);
         }
         obj = obj->next;
     }
@@ -179,10 +206,11 @@ void rtr::scene::load_obj(const std::string& filename)
             std::array<rtr::vertex, 3> face_vertices;
             for(int j = 0; j < 3; j++)
             {
-                face_vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), -1,            mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
+                face_vertices[j] = rtr::vertex(to_vec3(mesh.Vertices[i+j].Position), to_vec3(mesh.Vertices[i+j].Normal), nullptr,
+                        mesh.Vertices[i+j].TextureCoordinate.X, mesh.Vertices[i+j].TextureCoordinate.Y);
             }
         
-            rtr::primitives::face face_new(face_vertices);
+            rtr::primitives::face face_new(face_vertices, rtr::primitives::face::normal_types::per_vertex, rtr::primitives::face::material_binding::per_object);
             faces.push_back(face_new);
         }
 

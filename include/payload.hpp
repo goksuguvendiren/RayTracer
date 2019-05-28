@@ -17,7 +17,7 @@ namespace rtr
         glm::vec3 hit_pos;
         rtr::ray ray;
         float param = std::numeric_limits<float>::infinity();
-        int obj_id;
         const rtr::material* material;
+        int obj_id;
     };
 } // namespace rtr
