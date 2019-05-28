@@ -10,8 +10,6 @@
 #include <ray.hpp>
 #include "utils.hpp"
 
-//#undef BVH_ENABLED
-
 inline float determinant(const glm::vec3& col1, const glm::vec3& col2, const glm::vec3& col3)
 {
     return col1.x * (col2.y * col3.z - col2.z * col3.y) -
