@@ -8,6 +8,7 @@
 #include <payload.hpp>
 #include <primitives/mesh.hpp>
 #include <ray.hpp>
+#include "utils.hpp"
 
 //#undef BVH_ENABLED
 
@@ -21,6 +22,29 @@ inline float determinant(const glm::vec3& col1, const glm::vec3& col2, const glm
 inline bool is_back_face(const glm::vec3& surface_normal, const glm::vec3& direction)
 {
     return glm::dot(surface_normal, direction) < 0;
+}
+
+thread_local std::array<rtr::material, 4096> interpolated_material;
+thread_local int idx = 0;
+
+inline rtr::material interpolate_materials(rtr::material* a, float alpha, rtr::material* b, float beta, rtr::material* c, float gamma) {
+    rtr::material mat;
+
+    auto interpolate = [alpha, beta, gamma](auto propa, auto propb, auto propc)
+    {
+        auto res = propa * alpha + propb * beta + propc * gamma;
+        return res;
+    };
+
+    mat.diffuse    = interpolate(a->diffuse, b->diffuse, c->diffuse);
+    mat.ambient    = interpolate(a->ambient, b->ambient, c->ambient);
+    mat.specular   = interpolate(a->specular, b->specular, c->specular);
+    mat.emissive   = interpolate(a->emissive, b->emissive, c->emissive);
+    mat.exp        = interpolate(a->exp, b->exp, c->exp);
+    mat.trans      = interpolate(a->trans, b->trans, c->trans);
+    mat.refr_index = interpolate(a->refr_index, b->refr_index, c->refr_index);
+
+    return mat;
 }
 
 std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) const
@@ -63,9 +87,23 @@ std::optional<rtr::payload> rtr::primitives::face::hit(const rtr::ray &ray) cons
         normal = glm::normalize(surface_normal);
     }
 
+    material* mtrl_ptr = nullptr;
+    if (material_type == material_binding::per_vertex)
+    {
+        auto ind = idx;
+        interpolated_material[ind] = (interpolate_materials(a.mat, alpha, b.mat, beta, c.mat, gamma));
+        idx = (idx + 1) % interpolated_material.size();
+        //std::cerr << a.mat->diffuse << '\n';
+//        std::cerr << b.mat->diffuse << '\n';
+//        std::cerr << c.mat->diffuse << '\n';
+        //std::cerr << interpolated_material.diffuse << "\n\n";
+        mtrl_ptr = &interpolated_material[ind];
+        //mtrl_ptr = a.mat;
+    }
+
     if (std::isnan(param)) throw std::runtime_error("param is nan in face::hit()!");
 
-    return rtr::payload{normal, point, ray, param};
+    return rtr::payload{normal, point, ray, param, mtrl_ptr};
 }
 
 void rtr::primitives::face::set_normal()
@@ -83,7 +121,8 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
 
     if (hit)
     {
-        hit->material = &materials.front();
+        if (!hit->material)
+            hit->material = &materials.front();
         hit->obj_id = id;
     }
 
@@ -102,8 +141,10 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
         }
     }
 
-    if (min_hit) {
-        min_hit->material = &materials.front();
+    if (min_hit)
+    {
+        if (!hit->material)
+            hit->material = &materials.front();
         min_hit->obj_id = id;
     }
     return min_hit;

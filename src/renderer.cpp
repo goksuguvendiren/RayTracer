@@ -56,6 +56,9 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
     auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
     glm::vec3 color = ambient;
 
+//    return (payload.hit_normal + glm::vec3(1)) / 2.f;
+//    return mat->diffuse;
+
     scene.for_each_light([&payload, &color, &mat, &scene](auto light)
     {
         float epsilon = 1e-4;
@@ -142,7 +145,7 @@ static void UpdateProgress(float progress)
 glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const glm::vec3& camera_pos, const glm::vec3& pix_center, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 5;
+    constexpr int sq_sample_pp = 1;
     glm::vec3 color = {0, 0, 0};
     
     for (int k = 0; k < sq_sample_pp; ++k)

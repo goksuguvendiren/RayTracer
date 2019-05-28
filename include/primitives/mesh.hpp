@@ -74,6 +74,9 @@ namespace rtr
             int id;
             std::string name;
 
+            mesh(mesh&&) noexcept = default;
+            mesh(const mesh&) = delete;
+
         private:
             std::vector<rtr::primitives::face> faces;
             rtr::kd_tree tree;
