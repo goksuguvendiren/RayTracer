@@ -45,13 +45,16 @@ rtr::kd_tree::kd_tree(const std::vector<rtr::primitives::face*>& faces)
     switch(axis)
     {
         case 0:
-            std::sort(sfaces.begin(), sfaces.end(), [](auto& f1, auto& f2) {return f1->box.min.x < f2->box.min.x;});
+            std::nth_element(sfaces.begin(), sfaces.begin() + sfaces.size() / 2, sfaces.end(),
+                             [](auto& f1, auto& f2){return f1->box.min.x < f2->box.min.x;});
             break;
         case 1:
-            std::sort(sfaces.begin(), sfaces.end(), [](auto& f1, auto& f2) {return f1->box.min.y < f2->box.min.y;});
+            std::nth_element(sfaces.begin(), sfaces.begin() + sfaces.size() / 2, sfaces.end(),
+                             [](auto& f1, auto& f2) {return f1->box.min.y < f2->box.min.y;});
             break;
         case 2:
-            std::sort(sfaces.begin(), sfaces.end(), [](auto& f1, auto& f2) {return f1->box.min.z < f2->box.min.z;});
+            std::nth_element(sfaces.begin(), sfaces.begin() + sfaces.size() / 2, sfaces.end(),
+                             [](auto& f1, auto& f2) {return f1->box.min.z < f2->box.min.z;});
             break;
     }
 

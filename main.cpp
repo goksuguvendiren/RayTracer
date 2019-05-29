@@ -21,8 +21,8 @@ int main(int argc, const char** argv)
     std::cerr << "Scene loading took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
 
     begin = std::chrono::system_clock::now();
-    auto width = 400;
-    auto height = 400;
+    auto width = 1500;
+    auto height = 1500;
     rtr::renderer r(width, height);
     auto output_buffer = r.render(scene);
     end = std::chrono::system_clock::now();
@@ -32,7 +32,7 @@ int main(int argc, const char** argv)
     cv::Mat image(width, height, CV_32FC3, output_buffer.data());
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     cv::imshow("window", image);
-    cv::imwrite("image.png", image * 255);
+    cv::imwrite("image.tif", image * 255);
     cv::waitKey(0);
     
     return 0;
