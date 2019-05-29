@@ -15,6 +15,8 @@ int main(int argc, const char** argv)
 
     rtr::scene scene(scene_path);
     
+    std::cout << "Scene loaded!!\n";
+    
     auto end = std::chrono::system_clock::now();
     std::cerr << "Scene loading took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
 

@@ -18,6 +18,7 @@ namespace rtr
         rtr::ray ray;
         float param = std::numeric_limits<float>::infinity();
         const rtr::material* material;
+        glm::vec2 texture_coords;
         int obj_id;
     };
 } // namespace rtr

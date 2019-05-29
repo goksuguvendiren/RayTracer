@@ -51,6 +51,8 @@ namespace rtr
             void set_normal();
         };
 
+//        bool default_intersection(const rtr::payload& pld) { return true; }
+
         class mesh
         {
         public:
@@ -71,6 +73,8 @@ namespace rtr
 
             std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
+            
+//            std::function<bool(const rtr::payload&)> intersection_shader = default_intersection;
 
             int id;
             std::string name;

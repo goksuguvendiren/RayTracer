@@ -8,7 +8,6 @@
 #include <optional>
 #include <glm/vec3.hpp>
 #include <material.hpp>
-//#include "payload.hpp"
 #include "ray.hpp"
 
 namespace rtr
@@ -16,6 +15,8 @@ namespace rtr
     struct payload;
     namespace primitives
     {
+//        inline bool default_intersection(const rtr::payload&) { return true; }
+        
         class sphere
         {
         public:
@@ -26,6 +27,8 @@ namespace rtr
 
             std::vector<material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
+            
+//            std::function<bool(const rtr::payload&)> intersection_shader = default_intersection;
 
         // private:
             std::string name;

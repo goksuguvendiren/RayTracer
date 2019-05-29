@@ -170,7 +170,9 @@ rtr::scene::scene(const std::string &filename) {
 
     if (hasEnding(filename, ".obj"))
     {
+        std::cerr << "Loading the obj file\n";
         load_obj(filename);
+        std::cerr << "Finished loading!\n";
     }
     else if (hasEnding(filename, ".ascii"))
     {
@@ -200,6 +202,7 @@ void rtr::scene::load_obj(const std::string& filename)
     int id = 0;
     for(auto& mesh : loader.LoadedMeshes)
     {
+        std::cerr << "Loading mesh : " << id << "\n";
         std::vector<rtr::primitives::face> faces;
         for(int i = 0; i < mesh.Vertices.size(); i += 3)
         {

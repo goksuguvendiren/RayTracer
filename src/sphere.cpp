@@ -6,6 +6,17 @@
 #include "payload.hpp"
 #include "primitives/sphere.hpp"
 
+constexpr double pi = 3.14159265359;
+
+static glm::vec2 get_lat_long(const glm::vec3& point, const glm::vec3& center)
+{
+    auto N = glm::normalize(point - center);
+    auto u = std::atan2(N.x, N.z) / (2 * pi) + 0.5;
+    auto v = N.y * 0.5 + 0.5;
+    
+    return {u, v};
+}
+
 std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) const
 {
     auto eminc = ray.origin() - origin;
@@ -37,6 +48,12 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
     {
         return std::nullopt;
     }
+    
+    auto uv = get_lat_long(hit_point, origin);
+    
+    auto pld = rtr::payload{surface_normal, hit_point, ray, param, &materials.front(), uv, id};
+//    auto shader_result = intersection_shader(pld);
+//    if (!shader_result) return std::nullopt;
 
-    return rtr::payload{surface_normal, hit_point, ray, param, &materials.front(), id};
+    return pld;
 }

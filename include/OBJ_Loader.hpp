@@ -675,6 +675,7 @@ namespace objl
                 tempMesh.MeshName = meshname;
 
                 // Insert Mesh
+                std::cout << "Inserting meshes!\n";
                 LoadedMeshes.push_back(tempMesh);
             }
 
