@@ -1,0 +1,61 @@
+Composer format 2.1 ascii
+camera {
+  position 0 0 0
+  viewDirection 0 0 -1
+  focalDistance 12
+  orthoUp 0 1 0
+  verticalFOV 0.785398
+}
+point_light {
+  position -1.84647 0.778452 2.67544
+  color 1 1 1
+}
+point_light {
+  position -7.78433 2.38677 -5.08224
+  color 1 1 1
+}
+directional_light {
+  direction 0.580339 -0.523277 -0.62401
+  color 1 1 1
+}
+sphere {
+  name NULL
+  numMaterials 1
+  material {
+    diffColor 0.56 0.35 0.14
+    ambColor 0.2 0.2 0.2
+    specColor 0 0 0
+    emisColor 0 0 0
+    shininess 0.2
+    ktran 0
+  }
+  origin 0 0 -12
+  radius 1.33453
+  xaxis 1 0 0
+  xlength 1.33453
+  yaxis 0 1 0
+  ylength 1.33453
+  zaxis 0 0 1
+  zlength 1.33453
+}
+
+sphere {
+  name NULL
+  numMaterials 1
+  material {
+    diffColor 0.56 0.35 0.14
+    ambColor 0.2 0.2 0.2
+    specColor 0 0 0
+    emisColor 0 0 0
+    shininess 0.2
+    ktran 0
+  }
+  origin 10 1 -40
+  radius 5
+  xaxis 1 0 0
+  xlength 1.33453
+  yaxis 0 1 0
+  ylength 1.33453
+  zaxis 0 0 1
+  zlength 1.33453
+}

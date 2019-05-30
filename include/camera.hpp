@@ -36,8 +36,8 @@ namespace rtr
         auto up() const { return up_dir; }
         auto right() const { return right_dir; }
         auto view() const { return view_dir; }
-        auto center() const { return eye_pos; }
 
+        auto center() const { return eye_pos; }
         glm::vec3 position() const { return pinhole ? eye_pos : point_sample_lens(); }
 
         auto focal_distance() const { return focal_dist; }
@@ -84,12 +84,12 @@ namespace rtr
             glm::vec3 center;
             if (cam.is_pinhole())
             {
-                center = cam.position() + scale * cam.view();
+                center = cam.center() + scale * cam.view();
             }
             else
             {
                 // The camera has a lens, in this case the image plane is behind the camera
-                center = cam.position() - scale * cam.view();
+                center = cam.center() - scale * cam.view();
             }
             top_left = center + up - right; // CAN BE DIFFERENT! Check!
 

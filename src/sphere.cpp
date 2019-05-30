@@ -52,8 +52,6 @@ std::optional<rtr::payload> rtr::primitives::sphere::hit(const rtr::ray& ray) co
     auto uv = get_lat_long(hit_point, origin);
     
     auto pld = rtr::payload{surface_normal, hit_point, ray, param, &materials.front(), uv, id};
-//    auto shader_result = intersection_shader(pld);
-//    if (!shader_result) return std::nullopt;
 
     return pld;
 }

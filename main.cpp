@@ -10,7 +10,7 @@ int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
 
-    std::string scene_path = "../../Scenes/HW3/test_dof.ascii";
+    std::string scene_path = "../Scenes/HW2/test1.ascii";
     bool pinhole_camera = true;
     float image_plane_distance = 1.f;
     float lens_width = 1.f;
@@ -25,10 +25,10 @@ int main(int argc, const char** argv)
         }
     }
     
-    pinhole_camera = false;
-    image_plane_distance = 4;//std::stof(std::string(argv[2]));
-    lens_width = 0.1;//std::stof(std::string(argv[3]));
-    
+//    pinhole_camera = false;
+//    image_plane_distance = 2;//std::stof(std::string(argv[2]));
+//    lens_width = 1;//std::stof(std::string(argv[3]));
+
     rtr::scene scene(scene_path);
     scene.camera.pinhole = pinhole_camera;
     scene.camera.image_plane_dist = image_plane_distance;
@@ -50,6 +50,8 @@ int main(int argc, const char** argv)
     
     cv::Mat image(width, height, CV_32FC3, output_buffer.data());
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    if (!pinhole_camera)
+        cv::flip(image, image, 0);
     cv::imshow("window", image);
     cv::imwrite("image.tif", image * 255);
     cv::waitKey(0);
