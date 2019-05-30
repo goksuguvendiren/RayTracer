@@ -77,6 +77,31 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     return min_hit;
 }
 
+std::optional<rtr::payload> rtr::scene::hit2(const rtr::ray& ray) const
+{
+    std::optional<rtr::payload> min_hit = hit(ray);
+
+    if (min_hit)
+    {
+        auto allowed = min_hit->intersection_shader(*min_hit);
+
+        if (!allowed) {
+            glm::vec3 origin_new = ray.origin() + ray.direction() * (min_hit->param + 1e-4f);
+
+            auto new_hit = hit2(rtr::ray(origin_new, ray.direction()));
+
+            if (new_hit)
+            {
+                new_hit->param += min_hit->param + 1e-4f;
+            }
+
+            return new_hit;
+        }
+    }
+
+    return min_hit;
+}
+
 rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
     auto& cam = io->camera;
@@ -105,12 +130,28 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
         if (obj->type == ObjType::SPHERE_OBJ)
         {
             auto data = reinterpret_cast<SphereIO*>(obj->data);
+
             spheres.emplace_back(obj->name ? obj->name : "", to_vec3(data->origin), data->radius,
                                  to_vec3(data->xaxis), data->xlength,
                                  to_vec3(data->yaxis), data->ylength,
                                  to_vec3(data->zaxis), data->zlength);
 
             auto& sph = spheres.back();
+
+
+            if (obj->name && obj->name[0] == '#')
+            {
+                sph.intersection_shader = [](const rtr::payload& payload) -> bool
+                {
+                    bool u_white = (int(payload.texture_coords.x * CHECK_SIZE_X) % 2) == 1;
+                    bool v_white = (int(payload.texture_coords.y * CHECK_SIZE_Y) % 2) == 1;
+
+                    auto val = u_white ^ v_white;
+
+                    return val;
+                };
+            }
+
             std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
             sph.id = id++;
             for (int i = 0; i < obj->numMaterials; ++i)

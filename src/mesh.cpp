@@ -118,6 +118,7 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
         if (!hit->material)
             hit->material = &materials.front();
         hit->obj_id = id;
+        hit->intersection_shader = intersection_shader;
     }
 
     return hit;
@@ -141,6 +142,7 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
         if (!hit->material)
             hit->material = &materials.front();
         min_hit->obj_id = id;
+        hit->intersection_shader = intersection_shader;
     }
     return min_hit;
 #endif

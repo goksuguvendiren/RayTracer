@@ -19,6 +19,7 @@ namespace rtr
         float param = std::numeric_limits<float>::infinity();
         const rtr::material* material;
         glm::vec2 texture_coords;
+        std::function<bool(rtr::payload)> intersection_shader;
         int obj_id;
     };
 } // namespace rtr

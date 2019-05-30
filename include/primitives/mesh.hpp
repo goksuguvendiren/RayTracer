@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <functional>
 #include <chrono>
 #include <array>
 #include <optional>
@@ -51,7 +52,7 @@ namespace rtr
             void set_normal();
         };
 
-//        bool default_intersection(const rtr::payload& pld) { return true; }
+        inline bool mesh_default_intersection(const rtr::payload& pld) { return true; }
 
         class mesh
         {
@@ -74,7 +75,7 @@ namespace rtr
             std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
             
-//            std::function<bool(const rtr::payload&)> intersection_shader = default_intersection;
+            std::function<bool(const rtr::payload&)> intersection_shader = mesh_default_intersection;
 
             int id;
             std::string name;

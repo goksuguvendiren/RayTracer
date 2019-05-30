@@ -32,7 +32,7 @@ glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
 glm::vec3 shadow_trace(const rtr::scene& scene, const rtr::ray& ray, float light_distance)
 {
     auto shadow = glm::vec3{1.f, 1.f, 1.f};
-    std::optional<rtr::payload> hit = scene.hit(ray);
+    std::optional<rtr::payload> hit = scene.hit2(ray);
     
     if (!hit) return shadow;
     if (hit && (hit->param < light_distance)) // some base case checks to terminate
@@ -82,7 +82,7 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};  
-    std::optional<rtr::payload> hit = scene.hit(ray);
+    std::optional<rtr::payload> hit = scene.hit2(ray);
 
     if (!hit) return color;
 
@@ -142,7 +142,7 @@ glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& cam
                                       const rtr::image_plane& plane, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 25;
+    constexpr int sq_sample_pp = 5;
     auto is_lens = std::bool_constant<true>();
 
     glm::vec3 color = {0, 0, 0};
