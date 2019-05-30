@@ -20,6 +20,7 @@ namespace rtr
         const rtr::material* material;
         glm::vec2 texture_coords;
         std::function<bool(rtr::payload)> intersection_shader;
+        std::function<rtr::material(const rtr::payload&, const rtr::material*)> color_shader;
         int obj_id;
     };
 } // namespace rtr

@@ -4,6 +4,7 @@
 #include "scene.hpp"
 #include "primitives/sphere.hpp"
 #include "primitives/mesh.hpp"
+#include "shaders/shader.hpp"
 #include "utils.hpp"
 
 #define OBJL_CONSOLE_OUTPUT
@@ -138,19 +139,8 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
 
             auto& sph = spheres.back();
 
-
-            if (obj->name && obj->name[0] == '#')
-            {
-                sph.intersection_shader = [](const rtr::payload& payload) -> bool
-                {
-                    bool u_white = (int(payload.texture_coords.x * CHECK_SIZE_X) % 2) == 1;
-                    bool v_white = (int(payload.texture_coords.y * CHECK_SIZE_Y) % 2) == 1;
-
-                    auto val = u_white ^ v_white;
-
-                    return val;
-                };
-            }
+            if (obj->name && obj->name[0] == '#') sph.intersection_shader = rtr::shaders::Checkerboard;
+            else if (obj->name && obj->name[0] == '*') sph.color_shader = rtr::shaders::EarthTexture;
 
             std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
             sph.id = id++;

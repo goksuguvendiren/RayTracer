@@ -50,9 +50,9 @@ glm::vec3 shadow_trace(const rtr::scene& scene, const rtr::ray& ray, float light
 
 glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 {
-    auto& mat = payload.material;
+    auto mat = payload.color_shader(payload, payload.material);
 
-    auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
+    auto ambient = (1 - mat.trans) * mat.ambient * mat.diffuse;
     glm::vec3 color = ambient;
 
     scene.for_each_light([&payload, &color, &mat, &scene](auto light)
@@ -66,10 +66,10 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
         
         auto reflection_vector = reflect(light.direction(payload.hit_pos), payload.hit_normal);
         auto cos_angle = glm::dot(reflection_vector, -payload.ray.direction());
-        auto highlight = std::max(0.f, std::pow(cos_angle, mat->exp * 120));
+        auto highlight = std::max(0.f, std::pow(cos_angle, mat.exp * 120));
 
-        auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
-        auto specular = mat->specular * highlight;
+        auto diffuse = (1 - mat.trans) * mat.diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
+        auto specular = mat.specular * highlight;
 
         auto attenuation = light.attenuate(payload.hit_pos);
 
@@ -142,7 +142,7 @@ glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& cam
                                       const rtr::image_plane& plane, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 5;
+    constexpr int sq_sample_pp = 2;
     auto is_lens = std::bool_constant<true>();
 
     glm::vec3 color = {0, 0, 0};

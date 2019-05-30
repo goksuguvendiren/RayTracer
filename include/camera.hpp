@@ -49,6 +49,7 @@ namespace rtr
         bool pinhole;
         float image_plane_dist;
         float lens_width;
+        float focal_dist;
         
     private:
         glm::vec3 eye_pos;
@@ -57,7 +58,6 @@ namespace rtr
         glm::vec3 right_dir; 
 
 
-        float focal_dist;
         float vert_fov;
 
         glm::vec3 point_sample_lens() const
