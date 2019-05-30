@@ -140,7 +140,7 @@ glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& cam
                                       const rtr::image_plane& plane, const glm::vec3& right, const glm::vec3& below)
 {
     // supersampling - jittered stratified
-    constexpr int sq_sample_pp = 5;
+    constexpr int sq_sample_pp = 1;
     auto is_lens = std::bool_constant<true>();
 
     glm::vec3 color = {0, 0, 0};
@@ -149,7 +149,7 @@ glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& cam
     {
         for (int m = 0; m < sq_sample_pp; ++m)
         {
-            auto camera_pos = camera.position();
+            auto camera_pos = camera.position(); // random sample on the lens if not pinhole
             auto sub_pix_position = get_pixel_pos<sq_sample_pp>(pix_center, plane, camera, right, below, k, m, is_lens); // get the q
             auto ray = rtr::ray(camera_pos, sub_pix_position - camera_pos, true);
             

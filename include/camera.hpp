@@ -30,7 +30,7 @@ namespace rtr
             }
 
             right_dir = glm::normalize(glm::cross(view_dir, up_dir));
-            up_dir = glm::normalize(glm::cross(right_dir, view_dir));
+            up_dir    = glm::normalize(glm::cross(right_dir, view_dir));
         }
 
         auto up() const { return up_dir; }
@@ -46,25 +46,26 @@ namespace rtr
 
         auto is_pinhole() const { return pinhole; }
 
+        bool pinhole;
+        float image_plane_dist;
+        float lens_width;
+        
     private:
         glm::vec3 eye_pos;
         glm::vec3 view_dir;
         glm::vec3 up_dir;
         glm::vec3 right_dir; 
 
-        float lens_width;
 
         float focal_dist;
-        float image_plane_dist;
         float vert_fov;
 
-        bool pinhole;
         glm::vec3 point_sample_lens() const
         {
             auto u = get_random_float(-1, 1);
             auto v = get_random_float(-1, 1);
 
-            return eye_pos + u * right_dir * lens_width + v * up_dir * lens_width;
+            return eye_pos + u * right_dir * lens_width / 2.f + v * up_dir * lens_width / 2.f;
         }
     };
 
@@ -102,5 +103,4 @@ namespace rtr
     private:
         glm::vec3 top_left;
     };
-
 }

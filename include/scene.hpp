@@ -45,14 +45,14 @@ namespace rtr
         const std::vector<rtr::light>& lights() const { return lghts; }
         const std::vector<rtr::dir_light>& dir_lights() const { return dir_lghts; }
 
+        rtr::camera camera;
+
     private:
         glm::vec3 backgroundColor;
         glm::vec3 ambientLight;
         float shadowRayEpsilon          = 1e-3;
         float intersectionTestEpsilon   = 1e-6;
         float maxRecursionDepth;
-
-        rtr::camera camera;
 
         std::vector<rtr::primitives::sphere> spheres;
         std::vector<rtr::primitives::mesh> meshes;
