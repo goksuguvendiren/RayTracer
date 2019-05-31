@@ -15,8 +15,7 @@ add_executable(RayTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.c
     include/renderer.hpp src/renderer.cpp include/camera.hpp include/light.hpp 
         include/primitives/sphere.hpp include/material.hpp include/primitives/mesh.hpp 
         include/vertex.hpp src/sphere.cpp include/aabb.hpp include/kd_tree.hpp 
-		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp
-		src/shaders/shader.cpp include/shaders/shader.hpp)
+		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp)
 if (BVH_DISABLED)
 	target_compile_definitions(RayTracer PUBLIC BVH_DISABLED)
 endif()

@@ -4,7 +4,6 @@
 #include "scene.hpp"
 #include "primitives/sphere.hpp"
 #include "primitives/mesh.hpp"
-#include "shaders/shader.hpp"
 #include "utils.hpp"
 
 #define OBJL_CONSOLE_OUTPUT
@@ -78,31 +77,6 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     return min_hit;
 }
 
-std::optional<rtr::payload> rtr::scene::hit2(const rtr::ray& ray) const
-{
-    std::optional<rtr::payload> min_hit = hit(ray);
-
-    if (min_hit)
-    {
-        auto allowed = min_hit->intersection_shader(*min_hit);
-
-        if (!allowed) {
-            glm::vec3 origin_new = ray.origin() + ray.direction() * (min_hit->param + 1e-4f);
-
-            auto new_hit = hit2(rtr::ray(origin_new, ray.direction()));
-
-            if (new_hit)
-            {
-                new_hit->param += min_hit->param + 1e-4f;
-            }
-
-            return new_hit;
-        }
-    }
-
-    return min_hit;
-}
-
 rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
     auto& cam = io->camera;
@@ -138,9 +112,6 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
                                  to_vec3(data->zaxis), data->zlength);
 
             auto& sph = spheres.back();
-
-            if (obj->name && obj->name[0] == '#') sph.intersection_shader = rtr::shaders::Checkerboard;
-            else if (obj->name && obj->name[0] == '*') sph.color_shader = rtr::shaders::EarthTexture;
 
             std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
             sph.id = id++;

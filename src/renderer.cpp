@@ -32,7 +32,7 @@ glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
 glm::vec3 shadow_trace(const rtr::scene& scene, const rtr::ray& ray, float light_distance)
 {
     auto shadow = glm::vec3{1.f, 1.f, 1.f};
-    std::optional<rtr::payload> hit = scene.hit2(ray);
+    std::optional<rtr::payload> hit = scene.hit(ray);
     
     if (!hit) return shadow;
     if (hit && (hit->param < light_distance)) // some base case checks to terminate
@@ -50,9 +50,9 @@ glm::vec3 shadow_trace(const rtr::scene& scene, const rtr::ray& ray, float light
 
 glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 {
-    auto mat = payload.color_shader(payload, payload.material);
+    auto mat = payload.material;
 
-    auto ambient = (1 - mat.trans) * mat.ambient * mat.diffuse;
+    auto ambient = (1 - mat->trans) * mat->ambient * mat->diffuse;
     glm::vec3 color = ambient;
 
     scene.for_each_light([&payload, &color, &mat, &scene](auto light)
@@ -66,10 +66,10 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
         
         auto reflection_vector = reflect(light.direction(payload.hit_pos), payload.hit_normal);
         auto cos_angle = glm::dot(reflection_vector, -payload.ray.direction());
-        auto highlight = std::max(0.f, std::pow(cos_angle, mat.exp * 120));
+        auto highlight = std::max(0.f, std::pow(cos_angle, mat->exp * 120));
 
-        auto diffuse = (1 - mat.trans) * mat.diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
-        auto specular = mat.specular * highlight;
+        auto diffuse = (1 - mat->trans) * mat->diffuse * std::max(glm::dot(payload.hit_normal, light.direction(payload.hit_pos)), 0.0f);
+        auto specular = mat->specular * highlight;
 
         auto attenuation = light.attenuate(payload.hit_pos);
 
@@ -82,7 +82,7 @@ glm::vec3 shade(const rtr::scene& scene, const rtr::payload& payload)
 glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};  
-    std::optional<rtr::payload> hit = scene.hit2(ray);
+    std::optional<rtr::payload> hit = scene.hit(ray);
 
     if (!hit) return color;
 

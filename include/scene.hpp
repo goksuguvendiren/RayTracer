@@ -34,7 +34,6 @@ namespace rtr
         const rtr::camera& get_camera() const { return camera; }
 
         std::optional<rtr::payload> hit(const rtr::ray& ray) const;
-        std::optional<rtr::payload> hit2(const rtr::ray& ray) const;
 
         template <class FnT>
         void for_each_light(FnT&& func) const

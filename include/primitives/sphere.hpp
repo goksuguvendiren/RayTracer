@@ -16,8 +16,6 @@ namespace rtr
     struct payload;
     namespace primitives
     {
-        inline bool sph_default_intersection(const rtr::payload&) { return true; }
-        inline rtr::material sph_default_color(const rtr::payload& payload, const rtr::material* mat) { return material(*mat); }
         
         class sphere
         {
@@ -29,9 +27,6 @@ namespace rtr
 
             std::vector<material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
-            
-            std::function<bool(const rtr::payload&)> intersection_shader = sph_default_intersection;
-            std::function<rtr::material(const rtr::payload&, const rtr::material*)> color_shader = sph_default_color;
 
         // private:
             std::string name;

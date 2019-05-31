@@ -53,9 +53,6 @@ namespace rtr
             void set_normal();
         };
 
-        inline bool mesh_default_intersection(const rtr::payload& pld) { return true; }
-        inline rtr::material mesh_default_color(const rtr::payload& payload, const rtr::material* mat) { return material(*mat); }
-
         class mesh
         {
         public:
@@ -76,9 +73,6 @@ namespace rtr
 
             std::vector<rtr::material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
-            
-            std::function<bool(const rtr::payload&)> intersection_shader = mesh_default_intersection;
-            std::function<rtr::material(const rtr::payload&, const rtr::material*)> color_shader = mesh_default_color;
 
             int id;
             std::string name;
