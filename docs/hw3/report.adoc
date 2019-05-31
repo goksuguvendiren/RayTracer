@@ -1,0 +1,46 @@
+# CS285 Assignment3 : Improved RayTracer
+Goksu Guvendiren Bakir
+
+In this assignment, I implemented the requested updates to my previous ray tracer. 
+For the acceleration structure, I implemented BVH with axis aligned bounding boxes. I divided the bounding boxes at the axis that is largest in the bounding box. Also I divided the triangles from the median so that the distribution of th e triangles are equal between bounding boxes. 
+
+In addition, I implemented a parallelization scheme, that creates N threads (depending on the hardware of the CPU) and renders the lines one after the other. In my macbook the code runs with 4 threads, and in my desktop it runs with 12 threads. The timing results are calculated in my desktop setup, that has a Ryzen 5 CPU with 6 physical cores.
+
+My results for the inputs are as follows:
+
+image::test1.png[Test1]
+image::test2.png[Test2]
+image::test3.png[Test3]
+image::test4.png[Test4]
+image::test5.png[Test5]
+
+.Timings of the Ray Tracer
+|===
+| Scene | Total Time (naive code) | Preprocess Structure | Render Time | Total Time
+
+| Test 1
+|
+|
+|
+|
+
+| Test 2
+|Cell in column 2, row 2
+|Cell in column 3, row 2
+|
+|
+
+| Test 3
+| 
+| 
+|
+|
+
+|===
+
+I build my project using cmake, it assumes that OpenCV and glm is installed. Also for the threads and some more optimizations, I require that C++17 is enabled in the environment. 
+
+Finally, overall I really enjoyed implementing this, hope you like it. 
+
+Best,
+Goksu.
