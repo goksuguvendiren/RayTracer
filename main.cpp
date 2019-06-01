@@ -42,8 +42,8 @@ int main(int argc, const char** argv)
     std::cerr << "Scene loading took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
 
     begin = std::chrono::system_clock::now();
-    auto width = 1500;
-    auto height = 1500;
+    auto width = 100;
+    auto height = 100;
     rtr::renderer r(width, height);
     auto output_buffer = r.render(scene);
     end = std::chrono::system_clock::now();

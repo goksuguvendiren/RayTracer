@@ -9,6 +9,8 @@
 
 namespace rtr
 {
+    class scene;
+    class payload;
     class material
     {
     public:
@@ -17,14 +19,21 @@ namespace rtr
         {
             if (trans > 0.f) refr_index = 1.5f;
         }
-
+        
+        glm::vec3 shade(const scene& scene, const payload& pld) const;
+        
         glm::vec3 diffuse;
         glm::vec3 ambient;
         glm::vec3 specular;
         glm::vec3 emissive;
-
+        
         float exp;
         float trans;
         float refr_index;
+        
+    private:
+
+        
+        
     };
 }

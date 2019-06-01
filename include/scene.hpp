@@ -46,7 +46,8 @@ namespace rtr
         const std::vector<rtr::dir_light>& dir_lights() const { return dir_lghts; }
 
         rtr::camera camera;
-
+        glm::vec3 shadow_trace(const rtr::ray& ray, float light_distance) const;
+        
     private:
         glm::vec3 backgroundColor;
         glm::vec3 ambientLight;

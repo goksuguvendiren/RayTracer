@@ -77,6 +77,28 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     return min_hit;
 }
 
+
+// Do it recursively
+glm::vec3 rtr::scene::shadow_trace(const rtr::ray& ray, float light_distance) const
+{
+    auto shadow = glm::vec3{1.f, 1.f, 1.f};
+    std::optional<rtr::payload> pld = hit(ray);
+    
+    if (!pld) return shadow;
+    if (pld && (pld->param < light_distance)) // some base case checks to terminate
+    {
+        auto& diffuse = pld->material->diffuse;
+        auto normalized_diffuse = diffuse / std::max(std::max(diffuse.x, diffuse.y), diffuse.z);
+        return shadow * normalized_diffuse * pld->material->trans;
+    }
+    
+    auto hit_position = pld->hit_pos + ray.direction() * 1e-4f;
+    rtr::ray shadow_ray = rtr::ray(hit_position, ray.direction(), false);
+    
+    return shadow * shadow_trace(shadow_ray, light_distance - glm::length(pld->hit_pos - ray.origin()));
+}
+
+
 rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
     auto& cam = io->camera;
