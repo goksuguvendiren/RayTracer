@@ -2,7 +2,7 @@
 
 My raytracer that started as a course project, hopefully will evolve into a path tracer. 
 
-*Features implemented:*
+*Features implemented :*
 
 * Whitted ray tracer
 * Bounding volume hierarchy
@@ -14,4 +14,7 @@ My raytracer that started as a course project, hopefully will evolve into a path
 
 This project is almost finalized, the path tracer that evolves out of this is in another repo :)
 
-Some results : 
+*Some results :* 
+
+image::outputs/test4.png
+image::outputs/test5.png
