@@ -16,5 +16,5 @@ This project is almost finalized, the path tracer that evolves out of this is in
 
 *Some results :* 
 
-image::outputs/test4.png
-image::outputs/test5.png
+image::outputs/test4.png[]
+image::outputs/test5.png[]
