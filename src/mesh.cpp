@@ -110,7 +110,6 @@ void rtr::primitives::face::set_normal()
 
 std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) const
 {
-#ifndef BVH_DISABLED
     auto hit = tree.hit(ray);
 
     if (hit)
@@ -121,27 +120,4 @@ std::optional<rtr::payload> rtr::primitives::mesh::hit(const rtr::ray &ray) cons
     }
 
     return hit;
-#else
-    std::cerr << "BVH Disabled.\n";
-    std::optional<rtr::payload> min_hit;
-    for (auto& face : faces)
-    {
-        auto hit = face.hit(ray);
-        if (!hit) continue;
-        if (std::isnan(hit->param)) throw std::runtime_error("param is nan in mesh::hit()!");
-
-        if (!min_hit || hit->param < min_hit->param)
-        {
-            min_hit = *hit;
-        }
-    }
-
-    if (min_hit)
-    {
-        if (!hit->material)
-            hit->material = &materials.front();
-        min_hit->obj_id = id;
-    }
-    return min_hit;
-#endif
 }

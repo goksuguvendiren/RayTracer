@@ -194,7 +194,6 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     cv::namedWindow("window");
     cv::setMouseCallback("window", CallBackFunc, NULL);
 
-#ifndef THREADS_DISABLED
     int number_of_threads = std::thread::hardware_concurrency();
     std::cerr << "Threads enabled! Running " << number_of_threads << " threads!\n";
     std::vector<std::thread> threads;
@@ -215,17 +214,6 @@ std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
     }
     
     for (auto& thread : threads) { thread.join(); }
-#else
-    std::cerr << "Threads are disabled!" << '\n';
-    auto row_begin = pix_center;// + i * below;
-    for (int i = 0; i < height; ++i)
-    {
-        row_begin += below;// * 4;
-        render_line(scene, row_begin, i);
-
-        UpdateProgress(i / (float)height);
-    }
-#endif
 
     return frame_buffer;
 }

@@ -3,9 +3,6 @@
 #include "renderer.hpp"
 #include "scene.hpp"
 
-//#define BVH_DISABLED
-#define THREADS_DISABLED
-
 int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
@@ -33,10 +30,6 @@ int main(int argc, const char** argv)
         }
     }
     
-//    pinhole_camera = false;
-//    image_plane_distance = 2;//std::stof(std::string(argv[2]));
-//    lens_width = 1;//std::stof(std::string(argv[3]));
-
     rtr::scene scene(scene_path);
     scene.camera.pinhole = pinhole_camera;
     scene.camera.image_plane_dist = image_plane_distance;
@@ -49,8 +42,8 @@ int main(int argc, const char** argv)
     std::cerr << "Scene loading took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
 
     begin = std::chrono::system_clock::now();
-    auto width = 400;
-    auto height = 400;
+    auto width = 1500;
+    auto height = 1500;
     rtr::renderer r(width, height);
     auto output_buffer = r.render(scene);
     end = std::chrono::system_clock::now();
