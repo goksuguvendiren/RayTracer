@@ -10,61 +10,6 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
-//#define THREADS_DISABLED
-
-static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
-{
-    return glm::normalize(2 * glm::dot(normal, light) * normal - light);
-}
-
-glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
-{
-    float cosi = std::clamp(glm::dot(I, N), -1.f, 1.f);
-    float etai = 1, etat = ior;
-    glm::vec3 n = N;
-    if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n = -N; }
-    float eta = etai / etat;
-    float k = 1 - eta * eta * (1 - cosi * cosi);
-    return k < 0 ? glm::vec3{0, 0, 0} : eta * I + (eta * cosi - sqrtf(k)) * n;
-}
-
-glm::vec3 rtr::renderer::trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth)
-{
-    auto color = glm::vec3{0.f, 0.f, 0.f};  
-    std::optional<rtr::payload> hit = scene.hit(ray);
-
-    if (!hit) return color;
-
-//    return (hit->hit_normal + glm::vec3(1, 1, 1)) / 2.f;
-
-    if (rec_depth >= max_rec_depth) return color;
-    color = hit->material->shade(scene, *hit);
-//    color = shade(scene, *hit);
-
-    // Reflection :
-    if (hit->material->specular.x > 0.f || hit->material->specular.y > 0.f || hit->material->specular.z > 0.f)
-    {
-        auto reflection_direction = reflect(-hit->ray.direction(), hit->hit_normal);
-        rtr::ray reflected_ray(hit->hit_pos + (reflection_direction * 1e-3f), reflection_direction, false);
-        color += hit->material->specular * trace(scene, reflected_ray, rec_depth + 1, max_rec_depth);
-    }
-
-    // Refraction
-    if (hit->material->trans > 0.f)
-    {
-        auto eta_1 = 1.f;
-        auto eta_2 = 1.5f;
-        auto refraction_direction = refract(ray.direction(), hit->hit_normal, eta_2 / eta_1);
-        if (glm::length(refraction_direction) > 0.1)
-        {
-            rtr::ray refracted_ray(hit->hit_pos + (refraction_direction * 1e-3f), refraction_direction, false);
-            color += hit->material->trans * trace(scene, refracted_ray, rec_depth + 1, max_rec_depth);
-        }
-    }
-
-    return color;
-}
-
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
     if  ( event == cv::EVENT_LBUTTONDOWN )
@@ -104,9 +49,11 @@ glm::vec3 rtr::renderer::render_pixel(const rtr::scene& scene, const camera& cam
             auto camera_pos = camera.position(); // random sample on the lens if not pinhole
 //            std::cout << camera_pos << '\n';
             auto sub_pix_position = get_pixel_pos<sq_sample_pp>(pix_center, plane, camera, right, below, k, m, is_lens); // get the q
-            auto ray = rtr::ray(camera_pos, sub_pix_position - camera_pos, true);
+            auto ray = rtr::ray(camera_pos, sub_pix_position - camera_pos, 0, true);
 
-            color += trace(scene, ray, 0, 5);
+            color += scene.trace(ray);
+            
+            return color;
         }
     }
     

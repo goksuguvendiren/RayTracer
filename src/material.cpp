@@ -11,7 +11,7 @@ glm::vec3 rtr::material::shade(const rtr::scene &scene, const rtr::payload &pld)
      {
          float epsilon = 1e-4;
          auto hit_position = pld.hit_pos + pld.hit_normal * epsilon;
-         rtr::ray shadow_ray = rtr::ray(hit_position, light.direction(hit_position), false);
+         rtr::ray shadow_ray = rtr::ray(hit_position, light.direction(hit_position), pld.ray.rec_depth + 1, false);
          auto shadow = scene.shadow_trace(shadow_ray, light.distance(hit_position));
          
          if(shadow.x <= epsilon && shadow.y <= epsilon && shadow.z <= epsilon) return;// complete shadow, no need to compute the rest

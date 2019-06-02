@@ -46,6 +46,7 @@ namespace rtr
         const std::vector<rtr::dir_light>& dir_lights() const { return dir_lghts; }
 
         rtr::camera camera;
+        glm::vec3 trace(const rtr::ray& ray) const;
         glm::vec3 shadow_trace(const rtr::ray& ray, float light_distance) const;
         
     private:
@@ -53,7 +54,7 @@ namespace rtr
         glm::vec3 ambientLight;
         float shadowRayEpsilon          = 1e-3;
         float intersectionTestEpsilon   = 1e-6;
-        float maxRecursionDepth;
+        float maxRecursionDepth         = 5;
 
         std::vector<rtr::primitives::sphere> spheres;
         std::vector<rtr::primitives::mesh> meshes;

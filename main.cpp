@@ -7,7 +7,7 @@ int main(int argc, const char** argv)
 {
     auto begin = std::chrono::system_clock::now();
 
-    std::string scene_path = "../Scenes/HW2/test1.ascii";
+    std::string scene_path = "../../Scenes/HW2/test3.ascii";
     bool pinhole_camera = true;
     float image_plane_distance = 1.f;
     float lens_width = 1.f;

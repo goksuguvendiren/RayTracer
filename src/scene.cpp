@@ -44,6 +44,21 @@ rtr::primitives::face::material_binding to_rtr(MaterialBinding material)
     }
 }
 
+static glm::vec3 reflect(const glm::vec3& light, const glm::vec3& normal)
+{
+    return glm::normalize(2 * glm::dot(normal, light) * normal - light);
+}
+
+glm::vec3 refract(const glm::vec3 &I, const glm::vec3 &N, const float &ior)
+{
+    float cosi = std::clamp(glm::dot(I, N), -1.f, 1.f);
+    float etai = 1, etat = ior;
+    glm::vec3 n = N;
+    if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n = -N; }
+    float eta = etai / etat;
+    float k = 1 - eta * eta * (1 - cosi * cosi);
+    return k < 0 ? glm::vec3{0, 0, 0} : eta * I + (eta * cosi - sqrtf(k)) * n;
+}
 
 std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
 {
@@ -77,6 +92,40 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     return min_hit;
 }
 
+glm::vec3 rtr::scene::trace(const rtr::ray& ray) const
+{
+    auto color = glm::vec3{0.f, 0.f, 0.f};
+    std::optional<rtr::payload> pld = hit(ray);
+    
+    if (!pld) return color;
+    
+    if (pld->ray.rec_depth >= maxRecursionDepth) return color;
+    color = pld->material->shade(*this, *pld);
+    
+    // Reflection :
+    if (pld->material->specular.x > 0.f || pld->material->specular.y > 0.f || pld->material->specular.z > 0.f)
+    {
+        auto reflection_direction = reflect(ray.direction(), pld->hit_normal);
+        rtr::ray reflected_ray(pld->hit_pos + (reflection_direction * 1e-3f), reflection_direction, pld->ray.rec_depth + 1, false);
+        color += pld->material->specular * trace(reflected_ray);
+    }
+    
+    // Refraction
+    if (pld->material->trans > 0.f)
+    {
+        auto eta_1 = 1.f;
+        auto eta_2 = 1.5f;
+        
+        auto refraction_direction = refract(ray.direction(), pld->hit_normal, eta_2 / eta_1);
+        if (glm::length(refraction_direction) > 0.1)
+        {
+            rtr::ray refracted_ray(pld->hit_pos + (refraction_direction * 1e-3f), refraction_direction, pld->ray.rec_depth + 1, false);
+            color += pld->material->trans * trace(refracted_ray);
+        }
+    }
+
+    return color;
+}
 
 // Do it recursively
 glm::vec3 rtr::scene::shadow_trace(const rtr::ray& ray, float light_distance) const
@@ -93,11 +142,10 @@ glm::vec3 rtr::scene::shadow_trace(const rtr::ray& ray, float light_distance) co
     }
     
     auto hit_position = pld->hit_pos + ray.direction() * 1e-4f;
-    rtr::ray shadow_ray = rtr::ray(hit_position, ray.direction(), false);
+    rtr::ray shadow_ray = rtr::ray(hit_position, ray.direction(), ray.rec_depth, false);
     
     return shadow * shadow_trace(shadow_ray, light_distance - glm::length(pld->hit_pos - ray.origin()));
 }
-
 
 rtr::scene::scene(SceneIO* io) // Load veach scene.
 {
@@ -135,7 +183,7 @@ rtr::scene::scene(SceneIO* io) // Load veach scene.
 
             auto& sph = spheres.back();
 
-            std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
+//            std::cerr << glm::length(sph.origin - to_vec3(cam->position)) << '\n';
             sph.id = id++;
             for (int i = 0; i < obj->numMaterials; ++i)
             {
