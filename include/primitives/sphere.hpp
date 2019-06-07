@@ -25,6 +25,12 @@ namespace rtr
                    name(nm), origin(pos), radius(r), x_axis(x_ax), x_len(x_l), y_axis(y_ax), y_len(y_l),
                    z_axis(z_ax), z_len(z_l) {}
 
+            sphere(const std::string& nm, const glm::vec3& pos, float r, const rtr::material& m) :
+            name(nm), origin(pos), radius(r)
+            {
+                materials.push_back(m);
+            }
+
             std::vector<material> materials;
             std::optional<rtr::payload> hit(const rtr::ray& ray) const;
 

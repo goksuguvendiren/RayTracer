@@ -13,7 +13,7 @@ add_executable(PathTracer main.cpp src/scene_io.cpp include/scene.hpp src/scene.
     include/renderer.hpp src/renderer.cpp include/camera.hpp include/light.hpp 
         include/primitives/sphere.hpp include/material.hpp include/primitives/mesh.hpp 
         include/vertex.hpp src/sphere.cpp include/aabb.hpp include/kd_tree.hpp 
-		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/OBJ_Loader.hpp
-		src/material.cpp include/payload.hpp
-	)
+		src/kd_tree.cpp src/mesh.cpp include/dir_light.hpp include/tinyobjloader.hpp 
+		include/scene_loaders.hpp src/material.cpp include/payload.hpp include/utils.hpp
+        include/area_light.hpp	include/tinyxml/tinyxml2.h include/tinyxml/tinyxml2.cpp)
 target_link_libraries(PathTracer ${OpenCV_LIBS})

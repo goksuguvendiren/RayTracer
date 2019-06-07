@@ -17,6 +17,7 @@ namespace rtr
 
     public:
         vertex() = default;
+        vertex(const glm::vec3& pos) : poss(pos), normal({0, 0, 0}), mat(nullptr), u(0), v(0) {}
         vertex(const glm::vec3& pos, const glm::vec3& n, material* m, float s, float t) : poss(pos), normal(n),
         mat(m), u(s), v(t) {}
 

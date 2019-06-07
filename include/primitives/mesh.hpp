@@ -79,9 +79,20 @@ namespace rtr
 
             mesh(mesh&&) noexcept = default;
             mesh(const mesh&) = delete;
+            std::vector<rtr::primitives::face> faces;
+            
+            void configure_materials()
+            {
+                for (auto& face : faces)
+                {
+                    for (auto& vertex : face.vertices)
+                    {
+                        if (!vertex.mat) vertex.mat = &materials[0];
+                    }
+                }
+            }
 
         private:
-            std::vector<rtr::primitives::face> faces;
             rtr::kd_tree tree;
         };
     }

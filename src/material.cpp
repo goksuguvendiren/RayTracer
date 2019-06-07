@@ -18,7 +18,7 @@ glm::vec3 rtr::material::shade(const rtr::scene &scene, const rtr::payload &pld)
          
          auto reflection_vector = reflect(light.direction(pld.hit_pos), pld.hit_normal);
          auto cos_angle = glm::dot(reflection_vector, -pld.ray.direction());
-         auto highlight = std::max(0.f, std::pow(cos_angle, exp * 120));
+         auto highlight = std::max(0.f, std::pow(cos_angle, exp));
          
          auto diffuse = (1 - trans) * this->diffuse * std::max(glm::dot(pld.hit_normal, light.direction(pld.hit_pos)), 0.0f);
          auto specular = this->specular * highlight;
@@ -29,5 +29,4 @@ glm::vec3 rtr::material::shade(const rtr::scene &scene, const rtr::payload &pld)
      });
     
     return color;
-
 }

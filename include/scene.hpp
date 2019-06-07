@@ -29,8 +29,7 @@ namespace rtr
     class scene
     {
     public:
-        scene(SceneIO* io);
-        scene(const std::string& filename);
+        scene() = default;
         const rtr::camera& get_camera() const { return camera; }
 
         std::optional<rtr::payload> hit(const rtr::ray& ray) const;
@@ -49,19 +48,18 @@ namespace rtr
         glm::vec3 trace(const rtr::ray& ray) const;
         glm::vec3 shadow_trace(const rtr::ray& ray, float light_distance) const;
         
-    private:
-        glm::vec3 backgroundColor;
-        glm::vec3 ambientLight;
-        float shadowRayEpsilon          = 1e-3;
-        float intersectionTestEpsilon   = 1e-6;
-        float maxRecursionDepth         = 5;
+        void print() const;
+        
+//    private:
+        glm::vec3 background_color;
+        glm::vec3 ambient_light;
+        float shadow_ray_epsilon          = 1e-3;
+        float intersection_test_epsilon   = 1e-6;
+        float max_recursion_depth         = 5;
 
         std::vector<rtr::primitives::sphere> spheres;
         std::vector<rtr::primitives::mesh> meshes;
         std::vector<rtr::light> lghts;
         std::vector<rtr::dir_light> dir_lghts;
-
-        void load_obj(const std::string& filename);
-        void build_acceleration();
     };
 }
