@@ -80,6 +80,7 @@ void rtr::renderer::render_line(const rtr::scene &scene, const glm::vec3& row_be
 
 std::vector<glm::vec3> rtr::renderer::render(const rtr::scene &scene)
 {
+    // Phase 1 for photon mapping:
     const auto& camera = scene.get_camera();
     rtr::image_plane plane(camera, width, height);
 

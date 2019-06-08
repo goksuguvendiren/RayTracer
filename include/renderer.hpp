@@ -15,6 +15,7 @@ namespace rtr
     class scene;
     class ray;
 
+    template <typename Integrator>
     class renderer
     {
     public:
@@ -24,7 +25,7 @@ namespace rtr
             refr_indices.push(1.f);
         }
 
-        std::vector<glm::vec3> render(const rtr::scene& scene);
+        std::vector<glm::vec3> render(const rtr::scene& scene) { return integrator.render(); }
         void render_line(const rtr::scene &scene, const glm::vec3& row_begin, int i);
         glm::vec3 render_pixel(const rtr::scene& scene, const camera& camera, const glm::vec3& pix_center,
                                const rtr::image_plane& plane, const glm::vec3& right, const glm::vec3& below);
@@ -42,9 +43,9 @@ namespace rtr
         unsigned int width;
         unsigned int height;
 
-        std::stack<float> refr_indices;
+        Integrator integrator;
 
-        glm::vec3 trace(const rtr::scene& scene, const rtr::ray& ray, int rec_depth, int max_rec_depth);
+        std::stack<float> refr_indices;
     };
 
     template <int sq_sample_pp>

@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "scene.hpp"
 #include "scene_loaders.hpp"
+#include "photon_integrator.hpp"
 
 int main(int argc, const char** argv)
 {
@@ -44,7 +45,7 @@ int main(int argc, const char** argv)
 
     auto width = 400;
     auto height = 400;
-    rtr::renderer r(width, height);
+    rtr::renderer<photon_integrator> r(width, height);
     std::vector<glm::vec3> accum_buffer;
     std::vector<glm::vec3> result_buffer;
     std::vector<glm::vec3> output_buffer;
@@ -76,16 +77,6 @@ int main(int argc, const char** argv)
         cv::imshow("window", image);
         key = cv::waitKey(20);
     }
-//
-//    std::cerr << "Rendering took : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " millisecs.";
-//
-//    cv::Mat image(width, height, CV_32FC3, output_buffer.data());
-//    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
-//    if (!pinhole_camera)
-//        cv::flip(image, image, -1);
-//    cv::imshow("window", image);
-//    cv::imwrite("image.png", image * 255);
-//    cv::waitKey(0);
-//
+
     return 0;
 }
