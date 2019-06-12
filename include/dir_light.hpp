@@ -29,5 +29,13 @@ namespace rtr
         {
             return 1.0f;
         }
+
+        std::vector<rtr::photon> distribute_photons(int num_photons)
+        {
+            std::vector<photon> photons;
+
+            return photons;
+        }
+
     };
 }

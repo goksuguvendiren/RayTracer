@@ -54,7 +54,7 @@ namespace rtr
                     found_photon = (x*x + y*y + z*z <= 1);  // rejection sampling the sphere
                 }
 
-                photons.emplace_back(power * color / float(num_photons), position, glm::normalize(glm::vec3{x, y, z}));
+                photons.emplace_back(power / float(num_photons), position, glm::normalize(glm::vec3{x, y, z}));
             }
 
             return photons;

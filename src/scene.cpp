@@ -54,6 +54,8 @@ std::optional<rtr::payload> rtr::scene::hit(const rtr::ray& ray) const
     return min_hit;
 }
 
+
+
 glm::vec3 rtr::scene::trace(const rtr::ray& ray) const
 {
     auto color = glm::vec3{0.f, 0.f, 0.f};
@@ -116,6 +118,11 @@ glm::vec3 rtr::scene::shadow_trace(const rtr::ray& ray, float light_distance) co
     rtr::ray shadow_ray = rtr::ray(hit_position, ray.direction(), ray.rec_depth, false);
     
     return shadow * shadow_trace(shadow_ray, light_distance - glm::length(pld->hit_pos - ray.origin()));
+}
+
+glm::vec3 rtr::scene::photon_trace(const rtr::ray& photon_ray) const
+{
+    
 }
 
 void rtr::scene::print() const

@@ -11,6 +11,14 @@ namespace rtr
 {
     class scene;
     class payload;
+
+    enum class PathType
+    {
+        Absorbed,
+        Transmitted,
+        Reflected
+    };
+
     class material
     {
     public:
@@ -21,6 +29,8 @@ namespace rtr
         }
         
         glm::vec3 shade(const scene& scene, const payload& pld) const;
+
+
         
         glm::vec3 diffuse;
         glm::vec3 ambient;

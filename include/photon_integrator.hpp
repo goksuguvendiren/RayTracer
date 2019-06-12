@@ -4,11 +4,17 @@
 
 #pragma once
 
+#include <glm/vec3.hpp>
+
 namespace rtr
 {
+class scene;
 class photon_integrator
 {
 public:
-    void render();
+    std::vector<glm::vec3> render(const rtr::scene& scene);
+    
+private:
+    int num_photons;
 };
 }

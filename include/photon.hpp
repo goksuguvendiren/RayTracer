@@ -13,5 +13,7 @@ namespace rtr
         float power;
         glm::vec3 origin;
         glm::vec3 direction;
+    public:
+    	photon(float p, const glm::vec3& o, const glm::vec3& d) : power(p), origin(o), direction(d) {}
     };
 }

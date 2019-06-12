@@ -46,6 +46,7 @@ namespace rtr
 
         rtr::camera camera;
         glm::vec3 trace(const rtr::ray& ray) const;
+        glm::vec3 photon_trace(const rtr::ray& ray) const;
         glm::vec3 shadow_trace(const rtr::ray& ray, float light_distance) const;
         
         void print() const;
